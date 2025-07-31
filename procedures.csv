@@ -1,0 +1,301 @@
+specialty,category,name,cpt,id,description,special_needs
+ORTHO,Knee,Total Knee Arthroplasty,27447,ORTHO001,"Total knee replacement, right knee, using cemented prosthesis","Requires fluoroscopy, orthopedic implant tray, and tourniquet"
+ORTHO,Knee,ACL Reconstruction,29888,ORTHO002,"Anterior cruciate ligament reconstruction, left knee, using autograft",Requires arthroscopy equipment and graft fixation devices
+ORTHO,Knee,Meniscectomy,29881,ORTHO003,"Partial meniscectomy, medial meniscus, right knee",Requires arthroscopy tower and shaver system
+ORTHO,Knee,Knee Arthroscopy,29870,ORTHO004,"Diagnostic knee arthroscopy, left knee",Requires arthroscopy equipment
+ORTHO,Knee,Patellar Realignment,27422,ORTHO005,"Patellar realignment for recurrent dislocation, right knee",Requires fluoroscopy and suture anchors
+ORTHO,Knee,Quadriceps Tendon Repair,27385,ORTHO006,"Open repair of quadriceps tendon rupture, left knee",Requires orthopedic trauma tray
+ORTHO,Knee,PCL Reconstruction,29889,ORTHO007,"Posterior cruciate ligament reconstruction, right knee",Requires arthroscopy and graft fixation
+ORTHO,Knee,Knee Synovectomy,29876,ORTHO008,"Synovectomy for rheumatoid arthritis, left knee",Requires arthroscopy shaver
+ORTHO,Knee,Chondroplasty,29877,ORTHO009,"Chondroplasty for cartilage defect, right knee",Requires arthroscopy equipment
+ORTHO,Knee,Tibial Osteotomy,27457,ORTHO010,"High tibial osteotomy for osteoarthritis, left knee",Requires fluoroscopy and bone cutting tools
+ORTHO,Hip,Total Hip Arthroplasty,27130,ORTHO011,"Total hip replacement, left hip, using uncemented prosthesis",Requires fluoroscopy and hip implant system
+ORTHO,Hip,Hip Resurfacing,27125,ORTHO012,"Hip resurfacing, right hip, preserving femoral head",Requires specialized resurfacing implants
+ORTHO,Hip,Hip Arthroscopy,29914,ORTHO013,"Hip arthroscopy for labral tear, left hip",Requires traction table and arthroscopy equipment
+ORTHO,Hip,Femoral Fracture Fixation,27236,ORTHO014,"Open reduction internal fixation of femoral neck fracture, right hip",Requires trauma implants and fluoroscopy
+ORTHO,Hip,Trochanteric Bursectomy,27062,ORTHO015,"Trochanteric bursectomy for bursitis, left hip",Requires soft tissue instruments
+ORTHO,Hip,Hip Synovectomy,27054,ORTHO016,"Synovectomy for inflammatory arthritis, right hip",Requires arthroscopy equipment
+ORTHO,Hip,Acetabular Repair,27132,ORTHO017,"Revision of acetabular component, left hip",Requires revision hip implant system
+ORTHO,Hip,Periacetabular Osteotomy,27146,ORTHO018,"Periacetabular osteotomy for dysplasia, right hip",Requires fluoroscopy and bone cutting tools
+ORTHO,Shoulder,Rotator Cuff Repair,23412,ORTHO019,"Open rotator cuff repair, right shoulder",Requires shoulder arthroscopy kit and suture anchors
+ORTHO,Shoulder,Shoulder Arthroscopy,29826,ORTHO020,"Shoulder arthroscopy for impingement, left shoulder",Requires arthroscopy tower
+ORTHO,Shoulder,Bankart Repair,29806,ORTHO021,"Arthroscopic Bankart repair for shoulder instability, right shoulder",Requires suture anchors and arthroscopy
+ORTHO,Shoulder,Total Shoulder Arthroplasty,23472,ORTHO022,"Total shoulder replacement, left shoulder",Requires shoulder implant system and fluoroscopy
+ORTHO,Shoulder,Clavicle Fracture Fixation,23515,ORTHO023,"Open reduction internal fixation of clavicle fracture, right shoulder",Requires trauma implants
+ORTHO,Shoulder,Acromioplasty,23130,ORTHO024,"Acromioplasty for subacromial impingement, left shoulder",Requires arthroscopy shaver
+ORTHO,Spine,Lumbar Fusion,22612,ORTHO025,"Posterior lumbar fusion, L4-L5, with instrumentation",Requires spinal implants and fluoroscopy
+ORTHO,Spine,Cervical Discectomy,22551,ORTHO026,"Anterior cervical discectomy and fusion, C5-C6",Requires cervical implants and neuromonitoring
+ORTHO,Spine,Laminectomy,63047,ORTHO027,"Lumbar laminectomy for stenosis, L3-L4",Requires spinal retractors and high-speed drill
+ORTHO,Spine,Scoliosis Correction,22800,ORTHO028,"Posterior spinal fusion for scoliosis, T5-L1",Requires spinal instrumentation and fluoroscopy
+ORTHO,Spine,Kyphoplasty,22514,ORTHO029,"Kyphoplasty for vertebral fracture, T12",Requires balloon catheter and cement kit
+ORTHO,Spine,Spinal Decompression,63075,ORTHO030,"Cervical decompression for myelopathy, C4-C5",Requires neuromonitoring and spinal tray
+CV,Heart,Coronary Artery Bypass,33533,CV001,"Coronary artery bypass grafting, three vessels, using saphenous vein",Requires CViopulmonary bypass machine and sternal saw
+CV,Heart,Aortic Valve Replacement,33405,CV002,Aortic valve replacement with bioprosthetic valve,Requires heart-lung machine and valve prosthesis
+CV,Heart,Mitral Valve Repair,33430,CV003,"Mitral valve repair for regurgitation, open approach",Requires CViopulmonary bypass and annuloplasty ring
+CV,Heart,Heart Transplant,33945,CV004,Orthotopic heart transplantation,Requires transplant team and immunosuppression protocol
+CV,Heart,Ventricular Assist Device,33979,CV005,Insertion of left ventricular assist device,Requires heart-lung machine and VAD kit
+CV,Heart,PeriCViectomy,33030,CV006,PeriCViectomy for constrictive periCVitis,Requires CViac surgical tray
+CV,Heart,Atrial Septal Defect Closure,33641,CV007,Surgical closure of atrial septal defect,Requires CViopulmonary bypass and patch material
+CV,Heart,Maze Procedure,33257,CV008,Maze procedure for atrial fibrillation,Requires radiofrequency ablation tools
+CV,Heart,Coronary Angioplasty,92920,CV009,"Percutaneous coronary angioplasty with stent, left anterior descending artery",Requires cath lab and stent delivery system
+CV,Heart,Transcatheter Aortic Valve Replacement,33361,CV010,TAVR for aortic stenosis,Requires hybrid OR and valve delivery system
+CV,Vessels,Aortic Aneurysm Repair,33860,CV011,Open repair of ascending aortic aneurysm,Requires CViopulmonary bypass and vascular grafts
+CV,Vessels,Endovascular Stent Graft,34705,CV012,Endovascular repair of abdominal aortic aneurysm,Requires fluoroscopy and stent graft system
+CV,Vessels,Pulmonary Embolectomy,33910,CV013,Surgical pulmonary embolectomy for massive embolism,Requires CViopulmonary bypass
+CV,Vessels,Coronary Artery Ligation,33500,CV014,Ligation of anomalous coronary artery,Requires CViac surgical tray
+CV,Vessels,Vascular Bypass,35556,CV015,Femoral-popliteal bypass with synthetic graft,Requires vascular grafts and Doppler ultrasound
+CV,Vessels,Arterial Thrombectomy,34111,CV016,Thrombectomy of femoral artery,Requires vascular instruments and Fogarty catheters
+CV,Vessels,Venous Stenting,37238,CV017,Venous stenting for iliac vein compression,Requires fluoroscopy and venous stents
+CV,Vessels,Carotid Stenting,37215,CV018,Carotid artery stenting with embolic protection,Requires cath lab and embolic protection device
+CV,Electrophysiology,Pacemaker Insertion,33207,CV019,"Permanent pacemaker insertion, dual chamber, right side",Requires electrophysiology suite and pacing leads
+CV,Electrophysiology,Defibrillator Implantation,33249,CV020,Implantable CVioverter-defibrillator insertion,Requires EP lab and ICD device
+CV,Electrophysiology,Catheter Ablation,93656,CV021,Catheter ablation for atrial fibrillation,Requires 3D mapping system and ablation catheter
+CV,Electrophysiology,Electrophysiology Study,93620,CV022,Comprehensive electrophysiology study for arrhythmia,Requires EP lab and diagnostic catheters
+CV,Electrophysiology,Lead Extraction,33235,CV023,Transvenous lead extraction for infection,Requires laser sheath and extraction tools
+CV,Electrophysiology,CViac Resynchronization,33224,CV024,Insertion of CRT device for heart failure,Requires EP lab and CRT leads
+CV,Electrophysiology,Loop Recorder Implant,33282,CV025,Implantable loop recorder for syncope monitoring,Requires local anesthesia and monitoring device
+CV,Electrophysiology,Tilt Table Test,93660,CV026,Tilt table testing for vasovagal syncope,Requires tilt table and monitoring equipment
+GEN,Abdomen,Appendectomy,44950,GEN001,Open appendectomy for acute appendicitis,Requires general surgical tray and suction
+GEN,Abdomen,Cholecystectomy,47562,GEN002,Laparoscopic cholecystectomy for gallstones,Requires laparoscopy tower and clip appliers
+GEN,Abdomen,Hernia Repair,49505,GEN003,"Inguinal hernia repair, right side, with mesh",Requires mesh and hernia repair kit
+GEN,Abdomen,Colectomy,44140,GEN004,"Partial colectomy for colon cancer, left side",Requires bowel staplers and retractors
+GEN,Abdomen,Gastrectomy,43620,GEN005,Total gastrectomy for gastric carcinoma,Requires anastomosis staplers and retractors
+GEN,Abdomen,Splenectomy,38100,GEN006,Open splenectomy for splenic rupture,Requires vascular clamps and suction
+GEN,Abdomen,Pancreatectomy,48140,GEN007,Distal pancreatectomy for pancreatic mass,Requires pancreatic staplers and drains
+GEN,Abdomen,Small Bowel Resection,44120,GEN008,Small bowel resection for obstruction,Requires bowel staplers and retractors
+GEN,Abdomen,Adrenalectomy,60540,GEN009,"Laparoscopic adrenalectomy, left side, for adenoma",Requires laparoscopy tower and vascular clips
+GEN,Abdomen,Nissen Fundoplication,43280,GEN010,Laparoscopic Nissen fundoplication for GERD,Requires laparoscopy equipment and esophageal bougie
+GEN,Abdomen,Hepatectomy,47120,GEN011,Partial hepatectomy for liver metastasis,Requires liver retractors and ultrasonic dissector
+GEN,Abdomen,Bariatric Surgery,43775,GEN012,Laparoscopic sleeve gastrectomy for obesity,Requires laparoscopy tower and gastric staplers
+GEN,Abdomen,Enterostomy,44300,GEN013,Creation of ileostomy for Crohn’s disease,Requires ostomy appliances and retractors
+GEN,Abdomen,Peritoneal Dialysis Catheter,49418,GEN014,Insertion of peritoneal dialysis catheter,Requires laparoscopy equipment and catheter kit
+GEN,Abdomen,Exploratory Laparotomy,49000,GEN015,Exploratory laparotomy for acute abdomen,Requires general surgical tray and retractors
+GEN,Breast,Mastectomy,19303,GEN016,"Simple mastectomy, left breast, for carcinoma",Requires skin-sparing instruments and drains
+GEN,Breast,Lumpectomy,19301,GEN017,"Lumpectomy, right breast, for benign tumor",Requires wire localization and sentinel node kit
+GEN,Breast,Breast Reconstruction,19357,GEN018,"Breast reconstruction with tissue expander, left side",Requires tissue expander and microsurgery tools
+GEN,Breast,Axillary Lymph Node Dissection,38745,GEN019,"Axillary lymph node dissection, right side",Requires lymphatic mapping and retractors
+GEN,Breast,Breast Biopsy,19101,GEN020,"Open breast biopsy, left breast",Requires biopsy needle and imaging guidance
+GEN,Breast,Nipple-Sparing Mastectomy,19304,GEN021,"Nipple-sparing mastectomy, right breast",Requires microsurgery instruments and drains
+GEN,Breast,Sentinel Node Biopsy,38525,GEN022,"Sentinel lymph node biopsy, left breast",Requires radioactive tracer and gamma probe
+GEN,Breast,Breast Reduction,19318,GEN023,Bilateral breast reduction for macromastia,Requires skin resection tools and drains
+GEN,Breast,Implant Removal,19330,GEN024,"Removal of breast implant, right side",Requires soft tissue instruments
+GEN,Breast,Oncoplastic Surgery,19366,GEN025,Oncoplastic breast surgery for tumor resection,Requires reconstructive instruments
+GEN,Thyroid,Thyroidectomy,60240,GEN026,Total thyroidectomy for thyroid cancer,Requires neuromonitoring and fine dissectors
+GEN,Thyroid,Parathyroidectomy,60500,GEN027,Parathyroidectomy for hyperparathyroidism,Requires intraoperative PTH monitoring
+GEN,Thyroid,Hemithyroidectomy,60220,GEN028,Right hemithyroidectomy for nodule,Requires fine dissectors and retractors
+GEN,Thyroid,Lymph Node Excision,38510,GEN029,Cervical lymph node excision for metastasis,Requires fine dissectors and suction
+GEN,Thyroid,Thyroid Nodule Biopsy,60100,GEN030,Fine needle aspiration biopsy of thyroid nodule,Requires ultrasound guidance and biopsy needle
+GEN,Thyroid,Substernal Goiter Resection,60271,GEN031,Resection of substernal goiter,Requires sternal retractor and neuromonitoring
+GEN,Thyroid,Thyroglossal Duct Cyst Excision,60280,GEN032,Excision of thyroglossal duct cyst,Requires fine dissectors and suction
+GEN,Thyroid,Minimally Invasive Thyroidectomy,60252,GEN033,Minimally invasive thyroidectomy for benign nodule,Requires endoscopic equipment and neuromonitoring
+GEN,Soft Tissue,Lipoma Excision,21555,GEN034,"Excision of subcutaneous lipoma, neck",Requires soft tissue instruments and suction
+GEN,Soft Tissue,Abscess Drainage,10060,GEN035,Incision and drainage of subcutaneous abscess,Requires local anesthesia and drainage kit
+GEN,Soft Tissue,Sarcoma Resection,22900,GEN036,"Resection of soft tissue sarcoma, thigh",Requires wide excision tray and retractors
+GEN,Soft Tissue,Ganglion Cyst Excision,25111,GEN037,"Excision of ganglion cyst, wrist",Requires fine dissectors and tourniquet
+GEN,Soft Tissue,Pilonidal Cystectomy,11770,GEN038,Excision of pilonidal cyst with closure,Requires soft tissue instruments and drains
+GEN,Soft Tissue,Skin Graft,15100,GEN039,"Split-thickness skin graft for burn, leg",Requires dermatome and graft mesher
+GEN,Soft Tissue,Wound Debridement,11042,GEN040,"Debridement of necrotic wound, abdomen",Requires debridement tray and irrigation
+NEURO,Brain,Craniotomy,61510,NEURO001,"Craniotomy for tumor resection, left frontal lobe",Requires neuronavigation and craniotomy tray
+NEURO,Brain,Ventriculoperitoneal Shunt,62223,NEURO002,"VP shunt placement for hydrocephalus, right side",Requires shunt kit and stereotactic guidance
+NEURO,Brain,Deep Brain Stimulation,61867,NEURO003,DBS electrode placement for Parkinson’s disease,Requires stereotactic frame and microelectrode recording
+NEURO,Brain,Aneurysm Clipping,61697,NEURO004,"Clipping of cerebral aneurysm, anterior circulation",Requires microsurgery tools and aneurysm clips
+NEURO,Brain,Brain Biopsy,61750,NEURO005,Stereotactic brain biopsy for tumor,Requires stereotactic frame and biopsy needle
+NEURO,Brain,Epilepsy Surgery,61534,NEURO006,Temporal lobectomy for refractory epilepsy,Requires neuromonitoring and microsurgery tools
+NEURO,Brain,Chiari Decompression,61343,NEURO007,Suboccipital decompression for Chiari malformation,Requires high-speed drill and dural patch
+NEURO,Brain,Hematoma Evacuation,61312,NEURO008,"Evacuation of subdural hematoma, right side",Requires craniotomy tray and suction
+NEURO,Brain,Skull Tumor Resection,61500,NEURO009,"Resection of skull base tumor, anterior fossa",Requires microsurgery and neuronavigation
+NEURO,Brain,Transsphenoidal Surgery,61548,NEURO010,Transsphenoidal resection of pituitary adenoma,Requires endoscope and neuronavigation
+NEURO,Spine,Lumbar Microdiscectomy,63030,NEURO011,"Microdiscectomy for herniated disc, L5-S1",Requires operating microscope and spinal retractors
+NEURO,Spine,Cervical Fusion,22554,NEURO012,"Anterior cervical fusion, C6-C7",Requires cervical implants and fluoroscopy
+NEURO,Spine,Spinal Tumor Resection,63287,NEURO013,"Resection of intradural spinal tumor, CARD",Requires neuromonitoring and microsurgery
+NEURO,Spine,Vertebrectomy,63081,NEURO014,"Cervical vertebrectomy for tumor, C3",Requires spinal implants and neuromonitoring
+NEURO,Spine,Spinal Cord Stimulator,63655,NEURO015,Implantation of spinal cord stimulator for chronic pain,Requires fluoroscopy and stimulator kit
+NEURO,Spine,Facet Joint Injection,64493,NEURO016,Lumbar facet joint injection for pain,Requires fluoroscopy and injection kit
+NEURO,Spine,Spinal Deformity Correction,22843,NEURO017,"Correction of adult spinal deformity, lumbar",Requires spinal instrumentation and fluoroscopy
+NEURO,Spine,Disc Replacement,22857,NEURO018,"Cervical disc replacement, C5-C6",Requires artificial disc and fluoroscopy
+NEURO,Spine,Spinal Epidural Abscess Drainage,63266,NEURO019,Drainage of lumbar epidural abscess,Requires spinal retractors and suction
+NEURO,Spine,Sacroiliac Joint Fusion,27279,NEURO020,Minimally invasive sacroiliac joint fusion,Requires fluoroscopy and fusion implants
+NEURO,Peripheral Nerve,Carpal Tunnel Release,64721,NEURO021,"Open carpal tunnel release, right hand",Requires fine dissectors and tourniquet
+NEURO,Peripheral Nerve,Ulnar Nerve Transposition,64718,NEURO022,"Ulnar nerve transposition at elbow, left arm",Requires neuromonitoring and microsurgery
+NEURO,Peripheral Nerve,Peripheral Nerve Tumor Resection,64788,NEURO023,"Resection of peripheral nerve tumor, brachial plexus",Requires microsurgery and neuromonitoring
+NEURO,Peripheral Nerve,Nerve Repair,64831,NEURO024,"Microsurgical repair of median nerve, right wrist",Requires operating microscope and suture
+NEURO,Peripheral Nerve,Neurolysis,64708,NEURO025,Neurolysis of sciatic nerve for entrapment,Requires microsurgery tools
+NEURO,Peripheral Nerve,Brachial Plexus Exploration,64713,NEURO026,Exploration of brachial plexus for injury,Requires neuromonitoring and microsurgery
+NEURO,Peripheral Nerve,Nerve Grafting,64885,NEURO027,Nerve grafting for facial nerve injury,Requires nerve graft and microsurgery
+NEURO,Peripheral Nerve,Tarsal Tunnel Release,28035,NEURO028,"Tarsal tunnel release for nerve compression, left foot",Requires fine dissectors and tourniquet
+ENT,Ear,Tympanoplasty,69631,ENT001,"Tympanoplasty, right ear, for perforation repair",Requires operating microscope and ear instruments
+ENT,Ear,Myringotomy,69436,ENT002,"Myringotomy with tube placement, left ear",Requires operating microscope and ventilation tubes
+ENT,Ear,Mastoidectomy,69502,ENT003,"Simple mastoidectomy, right ear, for cholesteatoma",Requires high-speed drill and microscope
+ENT,Ear,Cochlear Implant,69930,ENT004,"Cochlear implant placement, left ear",Requires cochlear implant kit and neuromonitoring
+ENT,Ear,Stapedectomy,69660,ENT005,"Stapedectomy for otosclerosis, right ear",Requires laser and prosthesis
+ENT,Ear,Ear Canal Reconstruction,69310,ENT006,"Reconstruction of external auditory canal, left ear",Requires microscope and skin grafts
+ENT,Ear,Ossicular Chain Reconstruction,69661,ENT007,"Ossicular chain reconstruction, right ear",Requires prosthesis and microscope
+ENT,Ear,Ear Tumor Resection,69535,ENT008,"Resection of glomus tumor, left ear",Requires microsurgery and embolization
+ENT,Nose,Septoplasty,30520,ENT009,Septoplasty for deviated nasal septum,Requires nasal speculum and cartilage instruments
+ENT,Nose,Rhinoplasty,30420,ENT010,Functional rhinoplasty for nasal obstruction,Requires nasal osteotomes and sutures
+ENT,Nose,Sinus Surgery,31255,ENT011,Endoscopic sinus surgery for chronic sinusitis,Requires endoscope and microdebrider
+ENT,Nose,Nasal Polypectomy,31237,ENT012,"Endoscopic nasal polypectomy, bilateral",Requires endoscope and polypectomy instruments
+ENT,Nose,Turbinate Reduction,30140,ENT013,Submucous resection of inferior turbinates,Requires radiofrequency ablation device
+ENT,Nose,Nasal Fracture Repair,21320,ENT014,Closed reduction of nasal fracture,Requires nasal splints and local anesthesia
+ENT,Nose,Epistaxis Control,30903,ENT015,Control of anterior epistaxis with packing,Requires nasal packing and suction
+ENT,Nose,Nasal Tumor Resection,31225,ENT016,Endoscopic resection of nasal tumor,Requires endoscope and microsurgery tools
+ENT,Throat,Tonsillectomy,42826,ENT017,Tonsillectomy for chronic tonsillitis,Requires tonsillectomy tray and suction cautery
+ENT,Throat,Adenoidectomy,42830,ENT018,Adenoidectomy for adenoid hypertrophy,Requires adenoid curettes and suction
+ENT,Throat,Laryngectomy,31360,ENT019,Total laryngectomy for laryngeal cancer,Requires tracheostomy kit and microsurgery
+ENT,Throat,Vocal Cord Surgery,31541,ENT020,Microlaryngoscopy with vocal cord polyp removal,Requires operating microscope and laser
+ENT,Throat,Tracheostomy,31600,ENT021,Tracheostomy for airway obstruction,Requires tracheostomy tube and surgical tray
+ENT,Throat,Thyroid Cartilage Reduction,31587,ENT022,Thyroid cartilage reduction for voice modulation,Requires fine dissectors and neuromonitoring
+ENT,Throat,Pharyngectomy,42890,ENT023,Partial pharyngectomy for pharyngeal cancer,Requires microsurgery and reconstructive flaps
+ENT,Throat,Uvulopalatopharyngoplasty,42145,ENT024,UPPP for obstructive sleep apnea,Requires soft tissue instruments and suction
+ENT,Throat,Esophagoscopy,31575,ENT025,Diagnostic esophagoscopy for dysphagia,Requires flexible endoscope
+ENT,Throat,Laryngeal Tumor Resection,31546,ENT026,Endoscopic resection of laryngeal tumor,Requires laser and microscope
+URO,Kidney,Nephrectomy,50546,URO001,"Laparoscopic nephrectomy, left kidney, for renal mass",Requires laparoscopy tower and vascular clamps
+URO,Kidney,Pyeloplasty,50405,URO002,Laparoscopic pyeloplasty for ureteropelvic junction obstruction,Requires laparoscopy equipment and stents
+URO,Kidney,Kidney Transplant,50360,URO003,"Renal transplantation, left side",Requires transplant team and vascular anastomosis tools
+URO,Kidney,Percutaneous Nephrolithotomy,50080,URO004,"PCNL for large renal stone, right kidney",Requires fluoroscopy and nephroscope
+URO,Kidney,Renal Cyst Decortication,50541,URO005,"Laparoscopic decortication of renal cyst, left kidney",Requires laparoscopy tower
+URO,Kidney,Nephrostomy Tube Placement,50393,URO006,"Percutaneous nephrostomy tube placement, right kidney",Requires fluoroscopy and catheter kit
+URO,Kidney,Renal Artery Embolization,37242,URO007,Embolization of renal artery for bleeding,Requires cath lab and embolization coils
+URO,Kidney,Partial Nephrectomy,50240,URO008,"Partial nephrectomy for renal tumor, left kidney",Requires laparoscopy and vascular clamps
+URO,Prostate,Prostatectomy,55866,URO009,Robotic-assisted radical prostatectomy,Requires da Vinci robotic system
+URO,Prostate,Transurethral Resection of Prostate,52601,URO010,TURP for benign prostatic hyperplasia,Requires resectoscope and irrigation
+URO,Prostate,Prostate Biopsy,55700,URO011,Transrectal ultrasound-guided prostate biopsy,Requires ultrasound and biopsy needle
+URO,Prostate,Brachytherapy,55875,URO012,Prostate brachytherapy for cancer,Requires radiation seeds and ultrasound
+URO,Prostate,Cryoablation of Prostate,55873,URO013,Cryoablation for prostate cancer,Requires cryoablation probes and ultrasound
+URO,Prostate,Prostate Laser Vaporization,52648,URO014,Laser vaporization of prostate for BPH,Requires laser system and resectoscope
+URO,Prostate,Prostate Urethral Lift,52441,URO015,"Urethral lift for BPH, Urolift procedure",Requires Urolift implants and cystoscope
+URO,Prostate,Prostate Stenting,52282,URO016,Urethral stent placement for prostate obstruction,Requires cystoscope and stent kit
+URO,Bladder,Cystectomy,51590,URO017,Radical cystectomy with ileal conduit,Requires bowel staplers and ostomy appliances
+URO,Bladder,Transurethral Resection of Bladder Tumor,52234,URO018,TURBT for bladder cancer,Requires resectoscope and irrigation
+URO,Bladder,Bladder Neck Suspension,51845,URO019,Bladder neck suspension for stress incontinence,Requires laparoscopic equipment and sutures
+URO,Bladder,Cystoscopy,52000,URO020,Diagnostic cystoscopy for hematuria,Requires cystoscope and irrigation
+URO,Bladder,Bladder Stone Removal,52317,URO021,Cystolitholapaxy for bladder stones,Requires lithotripter and cystoscope
+URO,Bladder,Ureteral Stent Placement,52332,URO022,Ureteral stent placement for obstruction,Requires fluoroscopy and stent kit
+URO,Bladder,Bladder Augmentation,51960,URO023,Bladder augmentation with ileum,Requires bowel staplers and retractors
+URO,Bladder,Botulinum Toxin Injection,52287,URO024,Botulinum toxin injection for overactive bladder,Requires cystoscope and Botox kit
+URO,Bladder,Bladder Diverticulectomy,51525,URO025,Excision of bladder diverticulum,Requires cystoscope and retractors
+URO,Bladder,Urethroplasty,53410,URO026,Urethroplasty for urethral stricture,Requires microsurgery and grafts
+GYN,Uterus,Hysterectomy,58150,GYN001,Total abdominal hysterectomy for fibroids,Requires gynecologic surgical tray and retractors
+GYN,Uterus,Myomectomy,58140,GYN002,Abdominal myomectomy for uterine fibroids,Requires uterine retractors and morcellator
+GYN,Uterus,Endometrial Ablation,58353,GYN003,Endometrial ablation for menorrhagia,Requires hysteroscope and ablation device
+GYN,Uterus,Laparoscopic Hysterectomy,58570,GYN004,Laparoscopic total hysterectomy,Requires laparoscopy tower and uterine manipulator
+GYN,Uterus,Uterine Suspension,58400,GYN005,Uterine suspension for prolapse,Requires laparoscopic equipment and sutures
+GYN,Uterus,Hysteroscopy,58555,GYN006,Diagnostic hysteroscopy for abnormal bleeding,Requires hysteroscope and irrigation
+GYN,Uterus,Uterine Polypectomy,58558,GYN007,Hysteroscopic polypectomy for endometrial polyps,Requires hysteroscope and polypectomy instruments
+GYN,Uterus,Cervical Cerclage,59320,GYN008,Cervical cerclage for incompetent cervix,Requires suture material and speculum
+GYN,Uterus,Dilation and Curettage,58120,GYN009,D&C for miscarriage management,Requires curettes and suction
+GYN,Uterus,Uterine Artery Embolization,37243,GYN010,UAE for uterine fibroids,Requires cath lab and embolization particles
+GYN,Ovaries,Oophorectomy,58940,GYN011,"Laparoscopic oophorectomy, right ovary, for cyst",Requires laparoscopy equipment
+GYN,Ovaries,Ovarian Cystectomy,58925,GYN012,"Laparoscopic ovarian cystectomy, left ovary",Requires laparoscopy tower and fine dissectors
+GYN,Ovaries,Salpingo-Oophorectomy,58720,GYN013,Bilateral salpingo-oophorectomy for ovarian cancer,Requires laparoscopy equipment and retractors
+GYN,Ovaries,Ovarian Torsion Repair,58679,GYN014,Laparoscopic detorsion of right ovary,Requires laparoscopy tower
+GYN,Ovaries,Ovarian Biopsy,58900,GYN015,Laparoscopic biopsy of left ovary,Requires laparoscopy and biopsy forceps
+GYN,Ovaries,Oophoropexy,58662,GYN016,Oophoropexy for ovarian fixation,Requires laparoscopy and sutures
+GYN,Ovaries,Ovarian Drilling,58661,GYN017,Laparoscopic ovarian drilling for PCOS,Requires laparoscopy and electrosurgery
+GYN,Ovaries,Salpingectomy,58700,GYN018,Laparoscopic salpingectomy for ectopic pregnancy,Requires laparoscopy and hemostatic agents
+GYN,Pelvic,Pelvic Floor Repair,57240,GYN019,Anterior colporrhaphy for cystocele,Requires vaginal retractors and mesh
+GYN,Pelvic,Sacrocolpopexy,57425,GYN020,Laparoscopic sacrocolpopexy for pelvic organ prolapse,Requires laparoscopy and mesh
+GYN,Pelvic,Vulvectomy,56625,GYN021,Simple vulvectomy for vulvar cancer,Requires soft tissue instruments and retractors
+GYN,Pelvic,Colposcopy,57452,GYN022,Colposcopy with cervical biopsy,Requires colposcope and biopsy forceps
+GYN,Pelvic,LEEP Procedure,57522,GYN023,Loop electrosurgical excision for cervical dysplasia,Requires LEEP electrode and grounding pad
+GYN,Pelvic,Vaginal Hysterectomy,58260,GYN024,Vaginal hysterectomy for prolapse,Requires vaginal retractors and sutures
+GYN,Pelvic,Labial Reduction,56620,GYN025,Labiaplasty for hypertrophy,Requires fine dissectors and sutures
+GYN,Pelvic,Pelvic Adhesiolysis,58660,GYN026,Laparoscopic adhesiolysis for pelvic pain,Requires laparoscopy and scissors
+CV,Arteries,Carotid Endarterectomy,35301,VASC001,"Carotid endarterectomy, left side, for stenosis",Requires vascular shunts and Doppler ultrasound
+CV,Arteries,Aortoiliac Bypass,35606,VASC002,Aortoiliac bypass for occlusive disease,Requires vascular grafts and retractors
+CV,Arteries,Femoral Endarterectomy,35371,VASC003,Femoral endarterectomy for atherosclerosis,Requires vascular instruments and patches
+CV,Arteries,Arterial Embolectomy,34001,VASC004,Embolectomy of popliteal artery,Requires Fogarty catheters and suction
+CV,Arteries,Angioplasty,37221,VASC005,Percutaneous angioplasty of iliac artery,Requires cath lab and balloon catheter
+CV,Arteries,Arterial Stenting,37205,VASC006,Stenting of superficial femoral artery,Requires fluoroscopy and stent delivery system
+CV,Arteries,Aneurysm Repair,35081,VASC007,Open repair of abdominal aortic aneurysm,Requires vascular grafts and clamps
+CV,Arteries,Thromboendarterectomy,35351,VASC008,Thromboendarterectomy of iliac artery,Requires vascular instruments and patches
+CV,Arteries,Arteriovenous Fistula Creation,36821,VASC009,"AV fistula creation for dialysis, left arm",Requires vascular clamps and Doppler
+CV,Arteries,Arterial Bypass,35566,VASC010,Femoral-tibial bypass with vein graft,Requires vein harvest kit and vascular grafts
+CV,Veins,Varicose Vein Stripping,37718,VASC011,"Varicose vein stripping, right leg",Requires vein stripper and compression bandages
+CV,Veins,Endovenous Laser Ablation,36478,VASC012,"EVLA for varicose veins, left leg",Requires laser catheter and ultrasound
+CV,Veins,Sclerotherapy,36470,VASC013,"Sclerotherapy for spider veins, bilateral legs",Requires sclerosant and compression stockings
+CV,Veins,IVC Filter Placement,37191,VASC014,Inferior vena cava filter placement for DVT,Requires fluoroscopy and filter kit
+CV,Veins,Venous Thrombectomy,34401,VASC015,Thrombectomy of femoral vein,Requires Fogarty catheters and ultrasound
+CV,Veins,Vein Ligation,37700,VASC016,Ligation of saphenous vein for reflux,Requires vascular instruments and Doppler
+CV,Veins,Venous Stent Placement,37238,VASC017,Stenting of iliac vein for compression,Requires fluoroscopy and venous stents
+CV,Veins,Phlebectomy,37765,VASC018,Ambulatory phlebectomy for varicose veins,Requires phlebectomy hooks and compression
+CV,Lymphatic,Lymphadenectomy,38760,VASC019,Inguinal lymphadenectomy for metastasis,Requires lymphatic mapping and retractors
+CV,Lymphatic,Lymphatic Bypass,38746,VASC020,Lymphovenous bypass for lymphedema,Requires microsurgery and indocyanine green
+CV,Lymphatic,Lymph Node Biopsy,38500,VASC021,Biopsy of axillary lymph node,Requires fine dissectors and suction
+CV,Lymphatic,Lymphatic Mapping,38792,VASC022,Sentinel lymph node mapping for melanoma,Requires radioactive tracer and gamma probe
+CV,Lymphatic,Lymphedema Debulking,38999,VASC023,"Debulking surgery for chronic lymphedema, leg",Requires liposuction equipment and compression
+CV,Lymphatic,Lymphatic Embolization,37244,VASC024,Embolization of lymphatic leak,Requires cath lab and embolization agents
+CV,Lymphatic,Lymphocele Drainage,38308,VASC025,Drainage of pelvic lymphocele,Requires ultrasound and drainage catheter
+CV,Lymphatic,Lymphatic Reconstruction,38999,VASC026,Microsurgical lymphatic reconstruction,Requires microsurgery and supermicrosurgery tools
+CARD,Lung,Lobectomy,32480,THOR001,Right upper lobectomy for lung carcinoma,Requires thoracoscopy equipment and chest tubes
+CARD,Lung,Pneumonectomy,32440,THOR002,Left pneumonectomy for lung cancer,Requires double-lumen tube and thoracotomy tray
+CARD,Lung,Wedge Resection,32505,THOR003,"Thoracoscopic wedge resection, right lung, for metastasis",Requires VATS equipment and staplers
+CARD,Lung,Lung Biopsy,32405,THOR004,"Percutaneous lung biopsy for nodule, left lung",Requires CT guidance and biopsy needle
+CARD,Lung,Pleurodesis,32560,THOR005,Chemical pleurodesis for recurrent pleural effusion,Requires chest tube and sclerosing agent
+CARD,Lung,Decortication,32220,THOR006,"Pulmonary decortication for empyema, right lung",Requires thoracotomy tray and suction
+CARD,Lung,Lung Volume Reduction,32491,THOR007,"Lung volume reduction surgery for COPD, bilateral",Requires VATS equipment and staplers
+CARD,Lung,Bronchoscopy,31622,THOR008,Diagnostic bronchoscopy for airway obstruction,Requires flexible bronchoscope and biopsy forceps
+CARD,Lung,Thoracentesis,32555,THOR009,"Thoracentesis for pleural effusion, left side",Requires ultrasound and drainage catheter
+CARD,Lung,Lung Transplant,32851,THOR010,"Single lung transplant, right side",Requires transplant team and CViopulmonary bypass
+CARD,Lung,Segmentectomy,32484,THOR011,"Thoracoscopic segmentectomy, left lower lobe",Requires VATS equipment and chest tubes
+CARD,Lung,Pleural Biopsy,32604,THOR012,Thoracoscopic pleural biopsy for mesothelioma,Requires VATS equipment and biopsy forceps
+CARD,Esophagus,Esophagectomy,43107,THOR013,Transhiatal esophagectomy for esophageal cancer,Requires esophageal staplers and retractors
+CARD,Esophagus,Nissen Fundoplication,43327,THOR014,Thoracoscopic Nissen fundoplication for GERD,Requires VATS equipment and esophageal bougie
+CARD,Esophagus,Esophageal Myotomy,43450,THOR015,Heller myotomy for achalasia,Requires thoracoscopy and myotomy instruments
+CARD,Esophagus,Esophageal Stenting,43212,THOR016,Esophageal stent placement for obstruction,Requires endoscope and stent kit
+CARD,Esophagus,Esophageal Diverticulectomy,43130,THOR017,Thoracoscopic diverticulectomy for Zenker’s diverticulum,Requires VATS equipment and staplers
+CARD,Esophagus,Esophagoscopy,43200,THOR018,Diagnostic esophagoscopy for dysphagia,Requires flexible endoscope
+CARD,Mediastinum,Thymectomy,60521,THOR019,Thoracoscopic thymectomy for myasthenia gravis,Requires VATS equipment and retractors
+CARD,Mediastinum,Mediastinoscopy,39401,THOR020,Mediastinoscopy for lymph node biopsy,Requires mediastinoscope and biopsy forceps
+CARD,Mediastinum,PeriCVial Window,33025,THOR021,Subxiphoid periCVial window for effusion,Requires periCVial instruments and suction
+CARD,Mediastinum,Mediastinal Tumor Resection,39220,THOR022,Thoracoscopic resection of mediastinal mass,Requires VATS equipment and retractors
+CARD,Mediastinum,Diaphragmatic Hernia Repair,39540,THOR023,Thoracoscopic repair of diaphragmatic hernia,Requires VATS equipment and mesh
+CARD,Mediastinum,Chest Wall Reconstruction,32800,THOR024,Chest wall reconstruction for tumor resection,Requires reconstructive mesh and CARD tray
+POD,Forefoot,Bunionectomy,28296,POD001,"Bunionectomy with distal osteotomy, right foot",Requires fluoroscopy and bone cutting tools
+POD,Forefoot,Hammertoe Correction,28285,POD002,"Hammertoe correction, second toe, left foot",Requires K-wires and small joint instruments
+POD,Forefoot,Metatarsal Osteotomy,28306,POD003,"Metatarsal osteotomy for deformity, right foot",Requires fluoroscopy and bone screws
+POD,Forefoot,Toe Amputation,28825,POD004,"Amputation of third toe, left foot, for gangrene",Requires amputation tray and sutures
+POD,Forefoot,Neuroma Excision,28080,POD005,"Excision of Morton’s neuroma, right foot",Requires fine dissectors and retractors
+POD,Forefoot,Cheilectomy,28289,POD006,"Cheilectomy for hallux rigidus, left foot",Requires bone cutting tools and fluoroscopy
+POD,Forefoot,Sesamoidectomy,28315,POD007,"Sesamoidectomy for sesamoiditis, right foot",Requires fine dissectors and fluoroscopy
+POD,Forefoot,Plantar Plate Repair,28308,POD008,"Plantar plate repair, second toe, left foot",Requires suture anchors and small joint instruments
+POD,Midfoot,Tarsometatarsal Fusion,28740,POD009,"Tarsometatarsal fusion for arthritis, right foot",Requires bone screws and fluoroscopy
+POD,Midfoot,Midfoot Osteotomy,28304,POD010,"Midfoot osteotomy for flatfoot, left foot",Requires bone cutting tools and plates
+POD,Midfoot,Lisfranc Repair,28615,POD011,"Open reduction internal fixation of Lisfranc injury, right foot",Requires fluoroscopy and screws
+POD,Midfoot,Navicular Fracture Fixation,28485,POD012,"Fixation of navicular fracture, left foot",Requires fluoroscopy and bone screws
+POD,Hindfoot,Achilles Tendon Repair,27650,POD013,"Open repair of Achilles tendon rupture, right foot",Requires tendon repair kit and sutures
+POD,Hindfoot,Ankle Arthroscopy,29891,POD014,"Ankle arthroscopy for impingement, left foot",Requires arthroscopy tower and shaver
+POD,Hindfoot,Subtalar Fusion,28725,POD015,"Subtalar joint fusion for arthritis, right foot",Requires fluoroscopy and bone screws
+POD,Hindfoot,Calcaneal Osteotomy,28300,POD016,"Calcaneal osteotomy for flatfoot, left foot",Requires bone cutting tools and fluoroscopy
+POD,Hindfoot,Ankle Ligament Repair,27695,POD017,"Lateral ankle ligament repair, right foot",Requires suture anchors and retractors
+POD,Hindfoot,Triple Arthrodesis,28715,POD018,"Triple arthrodesis for hindfoot deformity, left foot",Requires fluoroscopy and bone screws
+POD,Soft Tissue,Plantar Fasciotomy,28008,POD019,"Plantar fasciotomy for heel pain, right foot",Requires fine dissectors and retractors
+POD,Soft Tissue,Tendon Lengthening,27687,POD020,"Gastrocnemius lengthening for equinus, left foot",Requires tendon instruments and sutures
+POD,Soft Tissue,Debridement,11043,POD021,"Debridement of diabetic foot ulcer, right foot",Requires debridement tray and irrigation
+POD,Soft Tissue,Skin Graft,15050,POD022,"Split-thickness skin graft for foot wound, left foot",Requires dermatome and graft mesher
+POD,Soft Tissue,Tendon Transfer,27690,POD023,"Tendon transfer for drop foot, right foot",Requires tendon repair kit and sutures
+POD,Soft Tissue,Abscess Drainage,10061,POD024,"Incision and drainage of foot abscess, left foot",Requires drainage kit and suction
+PLAS,Reconstructive,Skin Flap Reconstruction,15734,PLAST001,Local flap reconstruction for facial defect,Requires microsurgery tools and fine sutures
+PLAS,Reconstructive,Free Flap Reconstruction,15756,PLAST002,"Free flap reconstruction for breast, DIEP flap",Requires microsurgery and Doppler
+PLAS,Reconstructive,Tissue Expander Placement,19357,PLAST003,Tissue expander placement for breast reconstruction,Requires tissue expander and port
+PLAS,Reconstructive,Scar Revision,13101,PLAST004,"Scar revision for hypertrophic scar, arm",Requires fine dissectors and sutures
+PLAS,Reconstructive,Burn Reconstruction,15002,PLAST005,"Burn scar reconstruction with skin graft, leg",Requires dermatome and graft mesher
+PLAS,Reconstructive,Mohs Reconstruction,14060,PLAST006,"Local flap closure for Mohs defect, nose",Requires microsurgery and fine sutures
+PLAS,Reconstructive,Hand Reconstruction,26546,PLAST007,Reconstruction of hand defect with flap,Requires microsurgery and hand instruments
+PLAS,Reconstructive,Pressure Ulcer Repair,15920,PLAST008,Flap closure of sacral pressure ulcer,Requires flap instruments and drains
+PLAS,Cosmetic,Rhinoplasty,30410,PLAST009,Cosmetic rhinoplasty for nasal deformity,Requires nasal osteotomes and sutures
+PLAS,Cosmetic,Facelift,15824,PLAST010,Rhytidectomy for facial rejuvenation,Requires fine dissectors and suction
+PLAS,Cosmetic,Blepharoplasty,15822,PLAST011,"Upper eyelid blepharoplasty, bilateral",Requires fine scissors and cautery
+PLAS,Cosmetic,Abdominoplasty,15847,PLAST012,Abdominoplasty for excess abdominal skin,Requires abdominal retractors and drains
+PLAS,Cosmetic,Liposuction,15877,PLAST013,Liposuction of abdomen and flanks,Requires liposuction cannula and suction
+PLAS,Cosmetic,Breast Augmentation,19325,PLAST014,Breast augmentation with silicone implants,Requires breast implants and sizers
+PLAS,Cosmetic,Mastopexy,19316,PLAST015,"Breast lift for ptosis, bilateral",Requires breast retractors and sutures
+PLAS,Cosmetic,Otoplasty,69300,PLAST016,"Otoplasty for prominent ears, bilateral",Requires fine sutures and head dressing
+PLAS,Cosmetic,Brachioplasty,15836,PLAST017,Brachioplasty for excess arm skin,Requires skin resection tools and drains
+PLAS,Cosmetic,Thigh Lift,15832,PLAST018,"Thigh lift for excess skin, bilateral",Requires skin resection tools and compression
+PLAS,Cosmetic,Brow Lift,15824,PLAST019,Endoscopic brow lift for forehead rejuvenation,Requires endoscope and fixation devices
+PLAS,Cosmetic,Chin Augmentation,21120,PLAST020,Chin augmentation with implant,Requires chin implant and fine dissectors
+PLAS,Craniofacial,Cleft Lip Repair,40700,PLAST021,Unilateral cleft lip repair in infant,Requires microsurgery tools and pediatric anesthesia
+PLAS,Craniofacial,Cleft Palate Repair,42200,PLAST022,Repair of cleft palate in pediatric patient,Requires microsurgery tools and pediatric anesthesia
+PLAS,Craniofacial,Craniosynostosis Repair,61550,PLAST023,Cranial vault remodeling for craniosynostosis,Requires craniofacial instruments and neuromonitoring
+PLAS,Craniofacial,Facial Fracture Repair,21345,PLAST024,Open reduction of mandibular fracture,Requires plating system and maxillofacial tray

@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}09140500||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||60|M|^^^{YYYYMMDD}101500
+ZCS||N|ORSCH_S14||||33207^Pacemaker Insertion^CPT
+PID|1||{patientMRN}^^^MRN^MRN||GRIMM^BEN||19530818|M|GRIMM^BEN^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||CV|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|in_preop|In|{YYYYMMDD}09140500|||||||||{YYYYMMDD}09140500||||||||||||||||||
+AIS|1||CV019^Pacemaker Insertion|{YYYYMMDD}1015|0|M|60|M||||2
+NTE|1||Permanent pacemaker insertion, dual chamber, right side|Procedure Description|||
+NTE|2||Requires electrophysiology suite and pacing leads|Case Notes|||
+AIL|1||^OR06^^HEIGHTS
+AIP|1||110^Davis^Noah^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|CV|{YYYYMMDD}1015|0|S|60|S
+AIP|2||6^Rivera^Brandi^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1015|0|S|60|S
+AIP|3||45^Smith^Timothy^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1015|0|S|60|S
+AIP|4||27^Robles^John^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1015|0|S|60|S
+AIP|5||28^Morrison^Brandy^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1015|0|S|60|S

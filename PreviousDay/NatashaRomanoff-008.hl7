@@ -1,0 +1,16 @@
+MSH|^~\&|EPIC|NC||NC|20240501143223||SIU^S12|7604525|P|2.5
+SCH||{caseID}|||||||9840|S|^^^{YYYYYMMDD}122100
+ZCS|BEFORE|N|ORSCH_S12||||27487^PR REVISE KNEE JOINT REPLACE,ALL PARTS^CPT
+PID|1||{caseID}^^^MRN^MRN||Romanoff^Natasha  D||19500128|F|Romanoff^D^^~Romanoff^Natasha ^^~Romanoff^Natasha ^D^~Romanoff^Natasha ^D^|||||||||346622958
+PV1||Admit IP|AIPS^^^NC|||||11002^Smith^Ava^M^^^^^EPIC^^^^PROVID||ORTHO|||||||07045^Smith^Ava^A^^^^^EPIC^^^^PROVID||346622955
+RGS|
+OBX|1|DTM|closing|{YYYYMMDD}102500|||||||||{YYYYMMDD}102500||||||||||||||||||
+AIS|1||2317^REVISION, TOTAL ARTHROPLASTY, KNEE|{YYYYYMMDD}122100|0|S|5400|S|||230|1
+NTE|1||23 hour observation - left - REVISION, TOTAL ARTHROPLASTY, KNEE|Procedure Description|||
+NTE|2||Current Dx: failed left TKA    Arthroscopy or Open Open    Surgical Procedure: Revision Total Knee Arthroplasty to distal femoral replacement    Patient Class 23 hour observation    Fluoroscopy: None    Position:  Supine    Special Needs/Equipment: N/A  |CaseNotes|||
+NTE|3||  Vendor: Stryker|CaseNotes|||
+AIL|1||^{locationID}^^NC
+AIP|1||07045^Smith^Ava^A^^^^^EPIC^^^^PROVID|1.1^Primary|ORTHO|{YYYYYMMDD}122100|0|S|8040|S
+AIP|2||991019980^Norton^Brandi^^^^^^EPIC^^^^PROVID|4.20^Circulator||{YYYYMMDD}073000|0|S|10020|S
+AIP|3||991020258^Dixon^Craig^M^^^^^EPIC^^^^PROVID|4.150^Scrub ||{YYYYMMDD}073000|0|S|10020|S
+AIP|5||14169^Hernandez^Carol^K^^^^^EPIC^^^^PROVID|2.10^ANE Attending||{YYYYMMDD}073000|0|S|10020|S

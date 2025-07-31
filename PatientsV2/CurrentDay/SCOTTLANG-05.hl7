@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}15590500||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||120|M|^^^{YYYYMMDD}161500
+ZCS||Y|ORSCH_S14||||52000^Cystoscopy^CPT
+PID|1||{patientMRN}^^^MRN^MRN||LANG^SCOTT||19660419|M|LANG^SCOTT^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||URO|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|setup|In|{YYYYMMDD}15590500|||||||||{YYYYMMDD}15590500||||||||||||||||||
+AIS|1||URO020^Cystoscopy|{YYYYMMDD}1615|0|M|120|M||||2
+NTE|1||Diagnostic cystoscopy for hematuria|Procedure Description|||
+NTE|2||Requires cystoscope and irrigation|Case Notes|||
+AIL|1||^OR08^^HEIGHTS
+AIP|1||113^Bennett^Olivia^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|URO|{YYYYMMDD}1615|0|S|120|S
+AIP|2||48^Dixon^Sarah^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1615|0|S|120|S
+AIP|3||25^Cantrell^Carla^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1615|0|S|120|S
+AIP|4||19^Anderson^Kaitlin^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1615|0|S|120|S
+AIP|5||39^Dixon^Molly^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1615|0|S|120|S

@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}10170500||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||45|M|^^^{YYYYMMDD}104500
+ZCS||N|ORSCH_S14||||19325^Breast Augmentation^CPT
+PID|1||{patientMRN}^^^MRN^MRN||KYLE^SELINA||19690214|F|KYLE^SELINA^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||PLAS|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|closing|In|{YYYYMMDD}10170500|||||||||{YYYYMMDD}10170500||||||||||||||||||
+AIS|1||PLAST014^Breast Augmentation|{YYYYMMDD}1045|0|M|45|M||||2
+NTE|1||Breast augmentation with silicone implants|Procedure Description|||
+NTE|2||Requires breast implants and sizers|Case Notes|||
+AIL|1||^OR05^^HEIGHTS
+AIP|1||117^Henderson^Mia^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|PLAS|{YYYYMMDD}1045|0|S|45|S
+AIP|2||19^Anderson^Kaitlin^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1045|0|S|45|S
+AIP|3||12^Lloyd^George^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1045|0|S|45|S
+AIP|4||15^Johns^Thomas^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1045|0|S|45|S
+AIP|5||8^Thomas^Sean^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1045|0|S|45|S

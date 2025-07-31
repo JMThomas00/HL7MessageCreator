@@ -1,0 +1,20 @@
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}101040||SIU^S12|7612696|P|2.5
+SCH||{caseID}|||||||5340|S|^^^{YYYYMMDD}093900
+ZCS|BEFORE|N|ORSCH_S12||||52276^PR CYSTOSCOPY,DIR VIS INT URETHROTOMY^CPT
+PID|1||{caseID}^^^MRN^MRN||MRUDOCK^MATT||20030202|M|MURDOCK^MATT^^~MURDOCK^MATT^^|||||||||342965283
+PV1||Hospital OP|AOPS^^^NC|||||||UROL|||||||07061^Brown^Ava^T^^^^^EPIC^^^^PROVID||342961222
+RGS|
+OBX|1|DTM|complete|{YYYYMMDD}145500|||||||||{YYYYMMDD}145500||||||||||||||||||
+AIS|1||4169^CYSTOURETHROSCOPY, WITH DIRECT VISION INTERNAL URETHROTOMY|20240515093900|0|S|1380|S|||80|4
+NTE|1||Cystoscopy with Direct Vision Internal Urethrotomy (DVIU), Dilation with Drug Coated Balloon|Procedure Description|||
+NTE|2||Optilume |CaseNotes|||
+AIS|2||4743^Cystoscopy,with dilation of urethra using Optilume drug-coated balloon|20240515093900|0|S||S||||4
+NTE|1||.Optilume drug-coated balloon|Procedure Description|||
+NTE|2||Optilume |CaseNotes|||
+AIL|1||^OR08^^AOPOR
+AIP|1||07061^Brown^Ava^TO^^^^^EPIC^^^^PROVID|1.1^Primary|UROL|20240515093900|0|S|3540|S
+AIP|2||991019980^Johns^Renee^^^^^^EPIC^^^^PROVID|4.20^Circulator||{YYYYMMDD}073000|0|S|10020|S
+AIP|3||991020258^Wagner^Paul^M^^^^^EPIC^^^^PROVID|4.150^Scrub ||{YYYYMMDD}073000|0|S|10020|S
+AIP|4||99280311^Hernandez^Cassandra^^^^^^EPIC^^^^PROVID|4.20^Circulator||{YYYYMMDD}073000|0|S|10020|S
+AIP|5||14169^Landry^Jessica^K^^^^^EPIC^^^^PROVID|2.10^ANE Attending||{YYYYMMDD}073000|0|S|10020|S
+AIP|6||08382^Estes^Robert^R^^^^^EPIC^^^^PROVID|2.70^ANE AA||{YYYYMMDD}073000|0|S|10020|S

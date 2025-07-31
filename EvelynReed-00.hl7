@@ -1,0 +1,16 @@
+
+MSH|^~\&|EPIC|NC||NC|2025061109500900||SIU^S12|1000|P|2.5
+SCH||1000|||||||72|M|^^^2025061109500900
+ZCS||N|ORSCH_S14||||60252^Minimally Invasive Thyroidectomy^CPT
+PID|1||1000^^^MRN^MRN||Reed^Evelyn||19941125|M|Reed^Evelyn^^|||||||||1000
+PV1||IP|NC-PERIOP^^^NC|||||||GEN|||||||||1000
+RGS|
+AIS|1||GEN033^Minimally Invasive Thyroidectomy|20250611095009|0|M|72|M||||2
+NTE|1||Minimally invasive thyroidectomy for benign nodule|Procedure Description|||
+NTE|2||Requires endoscopic equipment and neuromonitoring|Case Notes|||
+AIL|1||^OR03^^HEIGHTS
+AIP|1||103^Williams^Emma^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|GEN|20250611095009|0|S|72|S
+AIP|2||17^Ortega^Austin^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|20250611095009|0|S|72|S
+AIP|3||10^Wagner^Timothy^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|20250611095009|0|S|72|S
+AIP|4||26^Cruz^Monique^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|20250611095009|0|S|72|S
+AIP|5||8^Thomas^Sean^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|20250611095009|0|S|72|S

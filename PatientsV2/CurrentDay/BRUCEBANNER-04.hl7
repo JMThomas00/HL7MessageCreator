@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}13140500||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||120|M|^^^{YYYYMMDD}141500
+ZCS||N|ORSCH_S14||||50393^Nephrostomy Tube Placement^CPT
+PID|1||{patientMRN}^^^MRN^MRN||BANNER^BRUCE||19490226|M|BANNER^BRUCE^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||URO|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|planned_preop|In|{YYYYMMDD}13140500|||||||||{YYYYMMDD}13140500||||||||||||||||||
+AIS|1||URO006^Nephrostomy Tube Placement|{YYYYMMDD}1415|0|M|120|M||||2
+NTE|1||Percutaneous nephrostomy tube placement, right kidney|Procedure Description|||
+NTE|2||Requires fluoroscopy and catheter kit|Case Notes|||
+AIL|1||^OR08^^HEIGHTS
+AIP|1||113^Bennett^Olivia^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|URO|{YYYYMMDD}1415|0|S|120|S
+AIP|2||19^Anderson^Kaitlin^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1415|0|S|120|S
+AIP|3||33^Rodriguez^Diane^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1415|0|S|120|S
+AIP|4||32^Thompson^Jessica^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1415|0|S|120|S
+AIP|5||22^Fox^Alison^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1415|0|S|120|S

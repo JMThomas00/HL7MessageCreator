@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}11450000||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||60|M|^^^{YYYYMMDD}120000
+ZCS||N|ORSCH_S14||||42826^Tonsillectomy^CPT
+PID|1||{patientMRN}^^^MRN^MRN||VANDYNE^JANET||20130219|F|VANDYNE^JANET^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||ENT|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|out_preop|In|{YYYYMMDD}11450000|||||||||{YYYYMMDD}11450000||||||||||||||||||
+AIS|1||ENT017^Tonsillectomy|{YYYYMMDD}1200|0|M|60|M||||2
+NTE|1||Tonsillectomy for chronic tonsillitis|Procedure Description|||
+NTE|2||Requires tonsillectomy tray and suction cautery|Case Notes|||
+AIL|1||^OR10^^HEIGHTS
+AIP|1||105^Brown^Ava^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|ENT|{YYYYMMDD}1200|0|S|60|S
+AIP|2||34^Baker^Michael^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1200|0|S|60|S
+AIP|3||23^Velasquez^Adam^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1200|0|S|60|S
+AIP|4||10^Wagner^Timothy^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1200|0|S|60|S
+AIP|5||49^Rodgers^Rebecca^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1200|0|S|60|S

@@ -1,0 +1,1132 @@
+# Dependencies:
+# Required:
+# - pandas: For CSV parsing and data handling
+#   Install with: pip install pandas
+# - tkinter: Built-in with Python 3.11, no installation needed
+# Optional (not used here but useful for HL7 validation):
+# - hl7apy: For HL7 message parsing and validation
+#   Install with: pip install hl7apy
+# To install required dependencies, run:
+#   pip install pandas
+
+import tkinter as tk
+from tkinter import scrolledtext, messagebox, ttk
+import pandas as pd
+import random
+import os
+import re
+from datetime import datetime, timedelta
+
+# Color scheme
+BG_COLOR = "#1F2139"  # Dark blue-gray background
+TEXT_COLOR = "#FFFFFF"  # White text
+PREVIEW_BG = "#1E1E1E"  # Near-black for preview areas
+TITLE_HL7_MSG = "#465BE7"  # Blue for "HL7 Message" title
+TITLE_CREATOR = "#7DCAE3"  # Light blue for "Creator & Editor" title
+TITLE_EDITOR = "#7DCAE3"  # Light blue for Editor
+DITHERED_TEXT = "#808080"  # Gray for disabled elements
+
+# Directory setup (same as script location)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = SCRIPT_DIR  # CSVs and output in script directory
+
+# Default HL7 template
+default_hl7 = """
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}00||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||{duration}|S|^^^{YYYYMMDD}{scheduledTime}
+ZCS||Y|ORSCH_S14||||{cptCode}^{procedure}^CPT
+PID|1||{patientMRN}^^^MRN^MRN||{patientLastName}^{patientFirstName}||{patientDOB}|{patientGender}|{patientLastName}^{patientFirstName}^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||GEN|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|{caseEvent}|In|{YYYYMMDD}{eventTime}|||||||||{YYYYMMDD}{eventTime}||||||||||||||||||
+AIS|1||{procedureId}^{procedure}|{YYYYMMDD}{scheduledTime}|0|S|4500|S||||2
+NTE|1||{procedureDescription}|Procedure Description|||
+NTE|2||{specialNeeds}|Case Notes|||
+AIL|1||^{locationOR}^^{locationDepartment}
+AIP|1||9941778^{primaryLastName}^{primaryFirstName}^W^^^^^EPIC^^^^PROVID|1.1^Primary|GEN|{YYYYMMDD}{scheduledTime}|0|S|{duration}|S
+AIP|2||99225747^{lastName}^{firstName}^E^^^^^EPIC^^^^PROVID|4.20^Circulator||{YYYYMMDD}{scheduledTime}|0|S|{duration}|S
+AIP|3||99252693^{lastName}^{firstName}^L^^^^^^EPIC^^^^PROVID|4.150^Scrub||{YYYYMMDD}{scheduledTime}|0|S|{duration}|S
+AIP|4||99252694^{lastName}^{firstName}^L^^^^^^EPIC^^^^PROVID|2.20^ANE CRNA||{YYYYMMDD}{scheduledTime}|0|S|{duration}|S
+AIP|5||99252695^{lastName}^{firstName}^L^^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist||{YYYYMMDD}{scheduledTime}|0|S|{duration}|S
+"""
+
+# Case events for OBX segments
+case_events = [
+    ("arrive", -60),
+    ("in_preop", -45),
+    ("out_preop", -15),
+    ("planned_preop", -45),
+    ("setup", 0),
+    ("intraop", 10),
+    ("started", 15),
+    ("closing", "duration-30"),
+    ("complete", "duration-15"),
+    ("exiting", "duration-10"),
+    ("ordered_pacu", "exiting-5"),
+    ("planned_pacu", "exiting-5"),
+    ("in_pacu", "exiting+5"),
+    ("out_pacu", "in_pacu+60"),
+]
+
+# Default font
+DEFAULT_FONT = ("Arial", 10)
+
+# Custom UppercaseEntry widget
+class UppercaseEntry(tk.Entry):
+    def __init__(self, *args, **kwargs):
+        tk.Entry.__init__(self, *args, **kwargs, font=DEFAULT_FONT)
+        self.bind("<KeyRelease>", self.to_upper)
+
+    def to_upper(self, event):
+        current_text = self.get()
+        self.delete(0, tk.END)
+        self.insert(0, current_text.upper())
+
+# Main application class
+class HL7MessageApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("HL7 Message Creator")
+        self.root.configure(bg=BG_COLOR)
+        self.root.geometry("1185x1160")
+        self.root.minsize(800, 600)
+
+        # Set dark theme for ttk widgets
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("TFrame", background=BG_COLOR)
+        style.configure("TLabel", background=BG_COLOR, foreground=TEXT_COLOR, font=DEFAULT_FONT)
+        style.configure("TButton", background=BG_COLOR, foreground=TEXT_COLOR, font=DEFAULT_FONT)
+        style.configure("Treeview", background=PREVIEW_BG, foreground=TEXT_COLOR, fieldbackground=PREVIEW_BG, font=DEFAULT_FONT)
+        style.map("Treeview", background=[("selected", "#3A3C5A")])
+        style.configure("Vertical.TScrollbar", background=BG_COLOR, troughcolor=BG_COLOR, arrowcolor=TEXT_COLOR)
+
+        # Load CSV files
+        try:
+            self.procedures = pd.read_csv(os.path.join(DATA_DIR, "procedures.csv"))
+            self.staff_names = pd.read_csv(os.path.join(DATA_DIR, "staff_names.csv"))
+            self.surgeon_names = pd.read_csv(os.path.join(DATA_DIR, "surgeon_names.csv"))
+            self.patient_names = pd.read_csv(os.path.join(DATA_DIR, "patient_names.csv"))
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load CSV files: {e}")
+            self.root.quit()
+            return
+
+        # Initialize state
+        self.patients = []
+        self.current_patient_index = -1
+        self.procedure_panel_visible = False
+        self.procedure_frames = []
+        self.folders = ["CurrentDay", "NextDay", "PreviousDay"]
+        self.current_block = -1
+        self.patient_blocks = []
+        self.edited_messages = {}
+        self.manual_entries = {}
+        self.edit_fields = []
+
+        # Menu bar
+        self.menu_bar = tk.Menu(root)
+        root.config(menu=self.menu_bar)
+        file_menu = tk.Menu(self.menu_bar, tearoff=0, font=DEFAULT_FONT)
+        file_menu.add_command(label="Quit", command=self.quit)
+        self.menu_bar.add_cascade(label="File", menu=file_menu)
+        view_menu = tk.Menu(self.menu_bar, tearoff=0, font=DEFAULT_FONT)
+        view_menu.add_command(label="Creator", command=lambda: self.set_mode("Creator"))
+        view_menu.add_command(label="Editor", command=lambda: self.set_mode("Editor"))
+        self.menu_bar.add_cascade(label="View", menu=view_menu)
+        help_menu = tk.Menu(self.menu_bar, tearoff=0, font=DEFAULT_FONT)
+        help_menu.add_command(label="Help", command=self.open_help)
+        help_menu.add_command(label="About", command=self.show_about)
+        self.menu_bar.add_cascade(label="Help", menu=help_menu)
+
+        # Content frame
+        self.content_frame = tk.Frame(root, bg=BG_COLOR)
+        self.content_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Start in Creator mode
+        self.set_mode("Creator")
+
+    def set_mode(self, mode):
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+        if mode == "Creator":
+            self.root.title("HL7 Message Creator")
+            self.setup_creator()
+        elif mode == "Editor":
+            self.root.title("HL7 Message Editor")
+            self.setup_editor()
+
+    def open_help(self):
+        help_window = tk.Toplevel(self.root)
+        help_window.title("Help - User Manual")
+        help_window.configure(bg=BG_COLOR)
+        help_text = scrolledtext.ScrolledText(
+            help_window, width=80, height=30, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, font=DEFAULT_FONT
+        )
+        help_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        help_content = """
+        HL7 Message Creator and Editor - User Manual
+
+        **Creator Mode**
+        - "Create New Patient" to start.
+        - Fill patient details, procedures, and staff.
+        - Use "Random" buttons for CSV data.
+        - Date buttons: -1 Day, Today, +1 Day.
+        - Time buttons: -1 Hour, Now, +1 Hour.
+        - DOB buttons: Random DOB, Age/Add.
+        - "Create" generates messages; "Save & Exit" saves them.
+
+        **Editor Mode**
+        - Loads messages from CurrentDay, NextDay, PreviousDay.
+        - Navigate with "Previous" and "Next".
+        - Edit manually or "Randomize All".
+        - Save with "Save and Exit".
+        """
+        help_text.insert(tk.END, help_content)
+        help_text.config(state="disabled")
+
+    def show_about(self):
+        messagebox.showinfo("About", "HL7 Message Creator\nVersion: 1.0\nAuthor: J.M.Thomas")
+
+    ### Date/Time/DOB Methods
+    def set_today_date(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            patient["base_vars"]["{YYYYMMDD}"].set(datetime.now().strftime("%Y%m%d"))
+            self.creator_update_preview()
+
+    def adjust_date(self, days):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            date_str = patient["base_vars"]["{YYYYMMDD}"].get()
+            if date_str == "{YYYYMMDD}" or not date_str:
+                return
+            try:
+                date = datetime.strptime(date_str, "%Y%m%d")
+                new_date = date + timedelta(days=days)
+                patient["base_vars"]["{YYYYMMDD}"].set(new_date.strftime("%Y%m%d"))
+                self.creator_update_preview()
+            except ValueError:
+                messagebox.showwarning("Invalid Input", "Date must be in YYYYMMDD format.")
+
+    def set_now_time(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            patient["base_vars"]["{scheduledTime}"].set(datetime.now().strftime("%H%M%S"))
+            self.update_time_button_states()
+            self.creator_update_preview()
+
+    def adjust_time(self, hours):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            time_str = patient["base_vars"]["{scheduledTime}"].get()
+            if time_str == "{scheduledTime}" or not time_str:
+                return
+            try:
+                time = datetime.strptime(time_str, "%H%M%S")
+                new_time = time + timedelta(hours=hours)
+                if 0 <= new_time.hour <= 23:
+                    patient["base_vars"]["{scheduledTime}"].set(new_time.strftime("%H%M%S"))
+                    self.update_time_button_states()
+                    self.creator_update_preview()
+                else:
+                    messagebox.showwarning("Time Limit", "Time must be between 00:00:00 and 23:59:59.")
+            except ValueError:
+                messagebox.showwarning("Invalid Input", "Time must be in HHMMSS format.")
+
+    def update_time_button_states(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            time_str = self.patients[self.current_patient_index]["base_vars"]["{scheduledTime}"].get()
+            if time_str == "{scheduledTime}" or not time_str:
+                self.time_minus_button.config(state="normal", fg=TEXT_COLOR)
+                self.time_plus_button.config(state="normal", fg=TEXT_COLOR)
+                return
+            try:
+                time = datetime.strptime(time_str, "%H%M%S")
+                self.time_minus_button.config(state="disabled" if time.hour == 0 else "normal", fg=DITHERED_TEXT if time.hour == 0 else TEXT_COLOR)
+                self.time_plus_button.config(state="disabled" if time.hour == 23 else "normal", fg=DITHERED_TEXT if time.hour == 23 else TEXT_COLOR)
+            except ValueError:
+                self.time_minus_button.config(state="normal", fg=TEXT_COLOR)
+                self.time_plus_button.config(state="normal", fg=TEXT_COLOR)
+
+    def random_dob(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            start_date = datetime(1940, 1, 1)
+            end_date = datetime(2025, 12, 31)
+            days = (end_date - start_date).days
+            random_date = start_date + timedelta(days=random.randint(0, days))
+            self.patients[self.current_patient_index]["base_vars"]["{patientDOB}"].set(random_date.strftime("%Y%m%d"))
+            self.update_dob_age()
+            self.creator_update_preview()
+
+    def set_dob_by_age(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            age_str = self.dob_age_var.get()
+            try:
+                age = int(age_str)
+                if not 0 <= age <= 85:
+                    raise ValueError("Age out of range")
+                current_year = datetime.now().year
+                birth_year = current_year - age
+                month = random.randint(1, 12)
+                day = random.randint(1, 28)  # Safe for all months
+                dob = datetime(birth_year, month, day)
+                self.patients[self.current_patient_index]["base_vars"]["{patientDOB}"].set(dob.strftime("%Y%m%d"))
+                self.update_dob_age()
+                self.creator_update_preview()
+            except ValueError:
+                messagebox.showwarning("Invalid Input", "Enter a numeric age between 0 and 85.")
+
+    def update_dob_age(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            dob_str = self.patients[self.current_patient_index]["base_vars"]["{patientDOB}"].get()
+            if dob_str == "{patientDOB}" or not dob_str:
+                self.dob_age_var.set("")
+                return
+            try:
+                dob = datetime.strptime(dob_str, "%Y%m%d")
+                today = datetime.now()
+                age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                self.dob_age_var.set(str(age))
+            except ValueError:
+                self.dob_age_var.set("")
+
+    ### Creator Mode
+    def setup_creator(self):
+        # Title
+        title_frame = tk.Frame(self.content_frame, bg=BG_COLOR)
+        title_frame.pack(pady=10)
+        tk.Label(title_frame, text="HL7 Message", font=("Georgia", 32), fg=TITLE_HL7_MSG, bg=BG_COLOR).pack(side=tk.LEFT)
+        tk.Label(title_frame, text=" Creator", font=("Georgia", 32), fg=TITLE_CREATOR, bg=BG_COLOR).pack(side=tk.LEFT)
+
+        # Main container
+        self.creator_main_container = tk.Frame(self.content_frame, bg=BG_COLOR)
+        self.creator_main_container.pack(fill=tk.BOTH, expand=True)
+
+        # Procedure browser
+        self.procedure_frame = tk.Frame(self.creator_main_container, bg=BG_COLOR, width=350)
+        self.procedure_frame.pack_propagate(False)
+        self.setup_procedure_browser()
+
+        # Content container
+        self.creator_content_container = tk.Frame(self.creator_main_container, bg=BG_COLOR)
+        self.creator_content_container.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        # Canvas for scrolling
+        self.canvas = tk.Canvas(self.creator_content_container, bg=BG_COLOR, highlightthickness=0)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.creator_content_frame = tk.Frame(self.canvas, bg=BG_COLOR)
+        self.canvas.create_window((0, 0), window=self.creator_content_frame, anchor="nw")
+        self.creator_content_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.bind_all("<MouseWheel>", lambda e: self.canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
+
+        # Preview text
+        self.creator_preview_text = scrolledtext.ScrolledText(
+            self.creator_content_frame, width=160, height=20, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, font=DEFAULT_FONT
+        )
+        self.creator_preview_text.pack(fill=tk.X, pady=(0, 10))
+
+        # Top buttons
+        self.creator_button_frame_top = tk.Frame(self.creator_content_frame, bg=BG_COLOR)
+        self.creator_button_frame_top.pack(fill=tk.X, pady=5)
+        self.creator_prev_button = tk.Button(self.creator_button_frame_top, text="Previous", command=self.creator_prev_patient, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT)
+        self.creator_prev_button.pack(side=tk.LEFT, padx=5)
+        self.creator_next_button = tk.Button(self.creator_button_frame_top, text="Next", command=self.creator_next_patient, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT)
+        self.creator_next_button.pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_top, text="Browse Procedures", command=self.toggle_procedure_browser, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_top, text="Create New Patient", command=self.create_new_patient, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_top, text="Quit", command=self.quit, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_top, text="Save & Exit", command=self.creator_save_and_exit, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+
+        # Base prompts
+        self.base_prompts_frame = tk.Frame(self.creator_content_frame, bg=BG_COLOR)
+        self.base_prompts_frame.pack(fill=tk.X, pady=5)
+        self.base_entries = {}
+        self.staff_entries = {}
+        self.additional_staff = []
+        self.setup_base_prompts()
+
+        # Procedures frame
+        self.procedures_frame = tk.Frame(self.creator_content_frame, bg=BG_COLOR)
+        self.procedures_frame.pack(fill=tk.X, pady=5)
+
+        # Bottom buttons
+        self.creator_button_frame_bottom = tk.Frame(self.creator_content_frame, bg=BG_COLOR)
+        self.creator_button_frame_bottom.pack(fill=tk.X, pady=5)
+        tk.Button(self.creator_button_frame_bottom, text="Add Procedure", command=self.add_procedure, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_bottom, text="Remove Last Procedure", command=self.remove_last_procedure, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_bottom, text="Add Staff Member", command=self.add_staff_member, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_bottom, text="Random Patient", command=self.random_patient, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_bottom, text="Random Surgeon", command=self.random_surgeon, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.creator_button_frame_bottom, text="Random Staff", command=self.random_staff, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+
+        # Create button
+        self.create_button = tk.Button(self.creator_content_frame, text="Create", command=self.create_patient, fg=TEXT_COLOR, bg=BG_COLOR, font=("Arial", 14))
+        self.create_button.pack(pady=10)
+
+        self.creator_update_button_states()
+        if self.patients and 0 <= self.current_patient_index < len(self.patients):
+            self.creator_load_patient()
+
+    def setup_procedure_browser(self):
+        search_frame = tk.Frame(self.procedure_frame, bg=BG_COLOR)
+        search_frame.pack(fill=tk.X, padx=5, pady=5)
+        tk.Label(search_frame, text="Search:", bg=BG_COLOR, fg=TEXT_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT)
+        self.search_var = tk.StringVar()
+        self.search_var.trace_add("write", lambda *args: self.filter_procedures())
+        tk.Entry(search_frame, textvariable=self.search_var, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+
+        tree_control_frame = tk.Frame(self.procedure_frame, bg=BG_COLOR)
+        tree_control_frame.pack(fill=tk.X, pady=5)
+        tk.Button(tree_control_frame, text="Collapse All", command=self.collapse_all_procedures, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(tree_control_frame, text="Expand All", command=self.expand_all_procedures, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+
+        self.tree = ttk.Treeview(self.procedure_frame, show="tree", height=20)
+        self.tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.tree.bind("<Double-1>", self.select_procedure)
+
+        button_frame = tk.Frame(self.procedure_frame, bg=BG_COLOR)
+        button_frame.pack(fill=tk.X, padx=5, pady=5)
+        tk.Button(button_frame, text="Choose Random", command=self.choose_random_procedure, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text="Close", command=self.toggle_procedure_browser, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+
+        self.populate_procedure_tree()
+
+    def collapse_all_procedures(self):
+        for item in self.tree.get_children():
+            self.tree.item(item, open=False)
+            for child in self.tree.get_children(item):
+                self.tree.item(child, open=False)
+
+    def expand_all_procedures(self):
+        for item in self.tree.get_children():
+            self.tree.item(item, open=True)
+            for child in self.tree.get_children(item):
+                self.tree.item(child, open=True)
+
+    def populate_procedure_tree(self, filter_text=""):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        filter_text = filter_text.lower()
+        specialties = self.procedures["specialty"].unique()
+        for spec in specialties:
+            if not filter_text or filter_text in spec.lower():
+                spec_id = self.tree.insert("", tk.END, text=spec)
+                categories = self.procedures[self.procedures["specialty"] == spec]["category"].unique()
+                for cat in categories:
+                    if not filter_text or filter_text in cat.lower():
+                        cat_id = self.tree.insert(spec_id, tk.END, text=cat)
+                        procs = self.procedures[(self.procedures["specialty"] == spec) & (self.procedures["category"] == cat)]
+                        for _, proc in procs.iterrows():
+                            proc_text = f"{proc['name']} (CPT: {proc['cpt']})"
+                            if not filter_text or filter_text in proc_text.lower() or filter_text in str(proc["id"]).lower() or filter_text in str(proc["cpt"]).lower():
+                                self.tree.insert(cat_id, tk.END, text=proc_text, values=(proc["name"], proc["id"], proc["description"], proc["special_needs"], proc["cpt"]))
+
+    def filter_procedures(self):
+        self.populate_procedure_tree(self.search_var.get())
+
+    def select_procedure(self, event):
+        item = self.tree.selection()
+        if item:
+            values = self.tree.item(item, "values")
+            if values:
+                self.apply_procedure_selection(*values)
+
+    def apply_procedure_selection(self, proc_name, proc_id, proc_desc, proc_needs, proc_cpt):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            if not patient["base_vars"]["{procedure}"].get() and not patient["procedures"]:
+                patient["base_vars"]["{procedure}"].set(proc_name)
+                patient["base_vars"]["{procedureId}"].set(proc_id)
+                patient["base_vars"]["{procedureDescription}"].set(proc_desc)
+                patient["base_vars"]["{specialNeeds}"].set(proc_needs)
+                patient["base_vars"]["{cptCode}"].set(proc_cpt)
+            else:
+                new_proc = {
+                    "{procedure}": tk.StringVar(value=proc_name),
+                    "{procedureId}": tk.StringVar(value=proc_id),
+                    "{procedureDescription}": tk.StringVar(value=proc_desc),
+                    "{specialNeeds}": tk.StringVar(value=proc_needs),
+                }
+                patient["procedures"].append(new_proc)
+                self.add_procedure_fields(new_proc)
+            self.creator_update_preview()
+
+    def choose_random_procedure(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            proc = self.procedures.sample(1).iloc[0]
+            patient = self.patients[self.current_patient_index]
+            if patient["procedures"]:
+                last_proc = patient["procedures"][-1]
+                for key, value in zip(["{procedure}", "{procedureId}", "{procedureDescription}", "{specialNeeds}"], [proc["name"], proc["id"], proc["description"], proc["special_needs"]]):
+                    last_proc[key].set(value)
+            else:
+                for key, value in zip(["{procedure}", "{procedureId}", "{procedureDescription}", "{specialNeeds}", "{cptCode}"], [proc["name"], proc["id"], proc["description"], proc["special_needs"], proc["cpt"]]):
+                    patient["base_vars"][key].set(value)
+            self.creator_update_preview()
+
+    def toggle_procedure_browser(self):
+        if self.procedure_panel_visible:
+            self.procedure_frame.pack_forget()
+            self.procedure_panel_visible = False
+        else:
+            self.procedure_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 5))
+            self.procedure_panel_visible = True
+
+    def setup_base_prompts(self):
+        for prompt in base_prompts:
+            frame = tk.Frame(self.base_prompts_frame, bg=BG_COLOR)
+            frame.pack(fill=tk.X, pady=2)
+            tk.Label(frame, text=prompt['prompt'], fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+            entry = UppercaseEntry(frame, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+            entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+            self.base_entries[prompt['key']] = entry
+
+            # Date buttons
+            if prompt['key'] == "{YYYYMMDD}":
+                btn_frame = tk.Frame(frame, bg=BG_COLOR)
+                btn_frame.pack(side=tk.LEFT, padx=5)
+                tk.Button(btn_frame, text="-1 Day", command=lambda: self.adjust_date(-1), fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+                tk.Button(btn_frame, text="Today", command=self.set_today_date, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+                tk.Button(btn_frame, text="+1 Day", command=lambda: self.adjust_date(1), fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+            # Time buttons
+            elif prompt['key'] == "{scheduledTime}":
+                btn_frame = tk.Frame(frame, bg=BG_COLOR)
+                btn_frame.pack(side=tk.LEFT, padx=5)
+                self.time_minus_button = tk.Button(btn_frame, text="-1 Hour", command=lambda: self.adjust_time(-1), fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT)
+                self.time_minus_button.pack(side=tk.LEFT, padx=2)
+                tk.Button(btn_frame, text="Now", command=self.set_now_time, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+                self.time_plus_button = tk.Button(btn_frame, text="+1 Hour", command=lambda: self.adjust_time(1), fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT)
+                self.time_plus_button.pack(side=tk.LEFT, padx=2)
+            # DOB buttons
+            elif prompt['key'] == "{patientDOB}":
+                btn_frame = tk.Frame(frame, bg=BG_COLOR)
+                btn_frame.pack(side=tk.LEFT, padx=5)
+                tk.Button(btn_frame, text="Random DOB", command=self.random_dob, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+                tk.Label(btn_frame, text="Age:", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+                self.dob_age_var = tk.StringVar()
+                tk.Entry(btn_frame, textvariable=self.dob_age_var, width=5, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+                tk.Button(btn_frame, text="Add", command=self.set_dob_by_age, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+
+        # Staff section
+        self.staff_group_frame = tk.Frame(self.base_prompts_frame, bg=BG_COLOR)
+        self.staff_group_frame.pack(fill=tk.X, pady=10)
+        self.fixed_roles = [
+            {"role": "Primary Surgeon", "code": "1.1^Primary", "id": "9941778", "last_key": "{primaryLastName}", "first_key": "{primaryFirstName}"},
+            {"role": "Circulator", "code": "4.20^Circulator", "id": "99225747", "last_key": "{lastName}", "first_key": "{firstName}"},
+            {"role": "Scrub", "code": "4.150^Scrub", "id": "99252693", "last_key": "{lastName}", "first_key": "{firstName}"},
+            {"role": "CRNA", "code": "2.20^ANE CRNA", "id": "99252694", "last_key": "{lastName}", "first_key": "{firstName}"},
+            {"role": "Anesthesiologist", "code": "2.139^Anesthesiologist", "id": "99252695", "last_key": "{lastName}", "first_key": "{firstName}"},
+        ]
+        for i, role_info in enumerate(self.fixed_roles):
+            row_frame = tk.Frame(self.staff_group_frame, bg=BG_COLOR)
+            row_frame.grid(row=i, column=0, sticky="w", pady=2)
+            tk.Label(row_frame, text=f"{role_info['role']}:", fg=TEXT_COLOR, bg=BG_COLOR, width=15, anchor="w", font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+            tk.Label(row_frame, text="Last:", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+            last_entry = UppercaseEntry(row_frame, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, width=18)
+            last_entry.pack(side=tk.LEFT, padx=2)
+            tk.Label(row_frame, text="First:", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+            first_entry = UppercaseEntry(row_frame, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, width=18)
+            first_entry.pack(side=tk.LEFT, padx=2)
+            last_var = tk.StringVar()
+            first_var = tk.StringVar()
+            last_entry.config(textvariable=last_var)
+            first_entry.config(textvariable=first_var)
+            last_var.trace_add("write", lambda *args: self.creator_update_preview())
+            first_var.trace_add("write", lambda *args: self.creator_update_preview())
+            self.staff_entries[role_info["role"]] = {"lastName": last_var, "firstName": first_var}
+
+    def random_patient(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            name = self.patient_names.sample(1).iloc[0]
+            patient = self.patients[self.current_patient_index]
+            patient["base_vars"]["{patientFirstName}"].set(name["First Name"])
+            patient["base_vars"]["{patientLastName}"].set(name["Last Name"])
+            self.creator_update_preview()
+
+    def random_surgeon(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            name = self.surgeon_names.sample(1).iloc[0]
+            self.staff_entries["Primary Surgeon"]["firstName"].set(name["First Name"])
+            self.staff_entries["Primary Surgeon"]["lastName"].set(name["Last Name"])
+            self.creator_update_preview()
+
+    def random_staff(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            for role in self.staff_entries:
+                if role != "Primary Surgeon":
+                    name = self.staff_names.sample(1).iloc[0]
+                    self.staff_entries[role]["firstName"].set(name["First Name"])
+                    self.staff_entries[role]["lastName"].set(name["Last Name"])
+            for staff in self.additional_staff:
+                name = self.staff_names.sample(1).iloc[0]
+                staff["vars"]["firstName"].set(name["First Name"])
+                staff["vars"]["lastName"].set(name["Last Name"])
+            self.creator_update_preview()
+
+    def creator_update_button_states(self):
+        total = len(self.patients)
+        idx = self.current_patient_index
+        self.creator_prev_button.config(state="disabled" if total <= 1 or idx <= 0 else "normal", fg=DITHERED_TEXT if total <= 1 or idx <= 0 else TEXT_COLOR)
+        self.creator_next_button.config(state="disabled" if total <= 1 or idx >= total - 1 else "normal", fg=DITHERED_TEXT if total <= 1 or idx >= total - 1 else TEXT_COLOR)
+
+    def create_new_patient(self):
+        patient = {
+            'base_vars': {p['key']: tk.StringVar(value=p['key']) for p in base_prompts},
+            'procedures': [],
+            'staff_members': [],
+            'messages': []
+        }
+        self.patients.append(patient)
+        self.current_patient_index = len(self.patients) - 1
+        self.creator_load_patient()
+
+    def creator_load_patient(self):
+        patient = self.patients[self.current_patient_index]
+        for key, entry in self.base_entries.items():
+            var = patient['base_vars'][key]
+            entry.config(textvariable=var)
+            if var.trace_info():
+                var.trace_remove("write", var.trace_info()[0][1])
+            var.trace_add("write", lambda *args: self.creator_update_preview())
+        for role in self.staff_entries:
+            self.staff_entries[role]["lastName"].set("")
+            self.staff_entries[role]["firstName"].set("")
+        for widget in self.procedures_frame.winfo_children():
+            widget.destroy()
+        self.procedure_frames = []
+        for proc in patient['procedures']:
+            self.add_procedure_fields(proc)
+        self.creator_update_preview()
+        self.creator_update_button_states()
+        # Rebind DOB trace
+        patient["base_vars"]["{patientDOB}"].trace_add("write", lambda *args: self.update_dob_age())
+
+    def add_procedure(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            proc = {f['key']: tk.StringVar(value="") for f in procedure_fields}
+            self.patients[self.current_patient_index]['procedures'].append(proc)
+            self.add_procedure_fields(proc)
+            self.creator_update_preview()
+
+    def remove_last_procedure(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            if patient['procedures']:
+                patient['procedures'].pop()
+                if self.procedure_frames:
+                    self.procedure_frames[-1].destroy()
+                    self.procedure_frames.pop()
+            else:
+                for key in ["{procedure}", "{procedureDescription}", "{specialNeeds}", "{procedureId}", "{cptCode}"]:
+                    patient['base_vars'][key].set("")
+            self.creator_update_preview()
+
+    def add_procedure_fields(self, proc):
+        frame = tk.Frame(self.procedures_frame, bg=BG_COLOR)
+        frame.pack(fill=tk.X, pady=5)
+        self.procedure_frames.append(frame)
+        for field in procedure_fields:
+            subframe = tk.Frame(frame, bg=BG_COLOR)
+            subframe.pack(fill=tk.X, pady=2)
+            tk.Label(subframe, text=field['prompt'], fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+            entry = UppercaseEntry(subframe, textvariable=proc[field['key']], bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+            entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+            proc[field['key']].trace_add("write", lambda *args: self.creator_update_preview())
+
+    def add_staff_member(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            staff = {"role": tk.StringVar(value="Staff"), "lastName": tk.StringVar(value=""), "firstName": tk.StringVar(value="")}
+            self.patients[self.current_patient_index]['staff_members'].append(staff)
+            self.add_staff_fields(staff)
+
+    def add_staff_fields(self, staff):
+        row = len(self.staff_entries) + len(self.additional_staff)
+        row_frame = tk.Frame(self.staff_group_frame, bg=BG_COLOR)
+        row_frame.grid(row=row, column=0, sticky="w", pady=2)
+        role_entry = UppercaseEntry(row_frame, textvariable=staff["role"], bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, width=15)
+        role_entry.pack(side=tk.LEFT, padx=5)
+        tk.Label(row_frame, text=":", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT)
+        tk.Label(row_frame, text="Last:", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+        last_entry = UppercaseEntry(row_frame, textvariable=staff["lastName"], bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, width=18)
+        last_entry.pack(side=tk.LEFT, padx=2)
+        tk.Label(row_frame, text="First:", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
+        first_entry = UppercaseEntry(row_frame, textvariable=staff["firstName"], bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, width=18)
+        first_entry.pack(side=tk.LEFT, padx=2)
+        for var in [staff["role"], staff["lastName"], staff["firstName"]]:
+            var.trace_add("write", lambda *args: self.creator_update_preview())
+        self.additional_staff.append({"frame": row_frame, "vars": staff})
+
+    def creator_update_preview(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            template = self.build_template(patient)
+            template = self.add_staff_segment(template)
+            s12_template = "\n".join(line for line in template.splitlines() if not line.startswith("OBX"))
+            base_values = {k: v.get() for k, v in patient['base_vars'].items()}
+            preview_text = s12_template
+            for key, val in base_values.items():
+                if val and val != key:
+                    preview_text = preview_text.replace(key, val)
+            self.creator_preview_text.delete(1.0, tk.END)
+            self.creator_preview_text.insert(tk.END, preview_text)
+
+    def build_template(self, patient):
+        template = default_hl7
+        for i, proc in enumerate(patient['procedures'], start=2):
+            proc_values = {k: v.get() for k, v in proc.items() if v.get()}
+            template = self.add_procedure_segments(template, i, proc_values)
+        return template
+
+    def add_procedure_segments(self, template, proc_num, proc_values):
+        lines = template.splitlines()
+        start_idx = next(i for i, line in enumerate(lines) if line.startswith("AIS|1|"))
+        end_idx = next(i for i, line in enumerate(lines) if line.startswith("AIL|1|")) + 1
+        proc_block = lines[start_idx:end_idx]
+        new_block = []
+        nte_count = 2 * (proc_num - 1)
+        for line in proc_block:
+            if line.startswith("AIS|1|"):
+                new_line = line.replace("AIS|1|", f"AIS|{proc_num}|")
+            elif line.startswith("NTE|1|"):
+                nte_count += 1
+                new_line = line.replace("NTE|1|", f"NTE|{nte_count}|")
+            elif line.startswith("NTE|2|"):
+                nte_count += 1
+                new_line = line.replace("NTE|2|", f"NTE|{nte_count}|")
+            elif line.startswith("AIL|1|"):
+                new_line = line.replace("AIL|1|", f"AIL|{proc_num}|")
+            else:
+                new_line = line
+            for key, val in proc_values.items():
+                if val:
+                    new_line = new_line.replace(key, val)
+            new_block.append(new_line)
+        insert_idx = next(i for i, line in enumerate(lines) if line.startswith("AIL|")) + 1
+        lines[insert_idx:insert_idx] = new_block
+        return "\n".join(lines)
+
+    def add_staff_segment(self, template):
+        lines = template.splitlines()
+        lines = [line for line in lines if not line.startswith("AIP|")]
+        insert_idx = next(i for i, line in enumerate(lines) if line.startswith("AIL|")) + 1
+        new_aip_lines = []
+        for i, role_info in enumerate(self.fixed_roles, start=1):
+            last_name = self.staff_entries[role_info["role"]]["lastName"].get() or role_info["last_key"]
+            first_name = self.staff_entries[role_info["role"]]["firstName"].get() or role_info["first_key"]
+            aip_line = f"AIP|{i}||{role_info['id']}^{last_name}^{first_name}^W^^^^^EPIC^^^^PROVID|{role_info['code']}|GEN|{{YYYYMMDD}}{{scheduledTime}}|0|S|{{duration}}|S"
+            new_aip_lines.append(aip_line)
+        aip_count = len(self.fixed_roles)
+        for staff in self.patients[self.current_patient_index]['staff_members']:
+            aip_count += 1
+            role = staff["role"].get() or "Staff"
+            last_name = staff["lastName"].get() or "{lastName}"
+            first_name = staff["firstName"].get() or "{firstName}"
+            aip_line = f"AIP|{aip_count}||99252695^{last_name}^{first_name}^L^^^^^^EPIC^^^^PROVID|{role}||{{YYYYMMDD}}{{scheduledTime}}|0|S|{{duration}}|S"
+            new_aip_lines.append(aip_line)
+        lines[insert_idx:insert_idx] = new_aip_lines
+        return "\n".join(lines)
+
+    def get_event_time(self, base_time, offset, duration, event_times):
+        if isinstance(offset, str):
+            if "duration" in offset:
+                delta = int(offset.split("-")[1])
+                minutes = duration - delta
+            elif "exiting" in offset:
+                delta = int(offset.split("exiting")[1])
+                return event_times["exiting"] + timedelta(minutes=delta + random.randint(-2, 2))
+            elif "in_pacu" in offset:
+                delta = int(offset.split("+")[1])
+                return event_times["in_pacu"] + timedelta(minutes=delta + random.randint(-2, 2))
+            else:
+                minutes = int(offset)
+        else:
+            minutes = offset
+        return base_time + timedelta(minutes=minutes + random.randint(-2, 2))
+
+    def fill_template(self, template, replacements):
+        for key, val in replacements.items():
+            if val and val != key:
+                template = template.replace(key, val)
+        return template
+
+    def build_event_messages(self, template, base_values, duration_min):
+        base_date = base_values.get("{YYYYMMDD}", "{YYYYMMDD}")
+        setup_time = base_values.get("{scheduledTime}", "{scheduledTime}")
+        if base_date == "{YYYYMMDD}" or setup_time == "{scheduledTime}":
+            messages = [(template, "00")]
+            for i, (event_name, _) in enumerate(case_events):
+                event_replacements = base_values.copy()
+                event_replacements["{caseEvent}"] = event_name
+                event_msg = self.fill_template(template, event_replacements)
+                messages.append((event_msg, f"{i+1:02}"))
+            return messages
+        try:
+            setup_dt = datetime.strptime(f"{base_date}{setup_time}", "%Y%m%d%H%M%S")
+        except ValueError:
+            messages = [(template, "00")]
+            for i, (event_name, _) in enumerate(case_events):
+                event_replacements = base_values.copy()
+                event_replacements["{caseEvent}"] = event_name
+                event_msg = self.fill_template(template, event_replacements)
+                messages.append((event_msg, f"{i+1:02}"))
+            return messages
+        messages = []
+        event_times = {}
+        s12_template = "\n".join(line for line in template.splitlines() if not line.startswith("OBX"))
+        s12_replacements = base_values.copy()
+        s12_replacements["{eventTime}"] = setup_dt.strftime("%H%M%S")
+        messages.append((self.fill_template(s12_template, s12_replacements), "00"))
+        for event_name, offset in case_events:
+            event_times[event_name] = self.get_event_time(setup_dt, offset, duration_min, event_times)
+        for i, (event_name, _) in enumerate(case_events):
+            event_time = event_times[event_name]
+            event_replacements = base_values.copy()
+            event_replacements["{eventTime}"] = event_time.strftime("%H%M%S")
+            event_replacements["{caseEvent}"] = event_name
+            event_replacements["{YYYYMMDD}"] = event_time.strftime("%Y%m%d")
+            event_msg = self.fill_template(template, event_replacements)
+            messages.append((event_msg, f"{i+1:02}"))
+        return messages
+
+    def create_patient(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            patient = self.patients[self.current_patient_index]
+            template = self.build_template(patient)
+            template = self.add_staff_segment(template)
+            base_values = {k: v.get() for k, v in patient['base_vars'].items()}
+            duration = base_values.get("{duration}", "")
+            duration_min = int(duration) if duration.isdigit() else random.randint(60, 120)
+            patient['messages'] = self.build_event_messages(template, base_values, duration_min)
+            messagebox.showinfo("Success", "Patient messages generated. Edit fields as needed.")
+
+    def creator_prev_patient(self):
+        if self.current_patient_index > 0:
+            self.current_patient_index -= 1
+            self.creator_load_patient()
+
+    def creator_next_patient(self):
+        if self.current_patient_index < len(self.patients) - 1:
+            self.current_patient_index += 1
+            self.creator_load_patient()
+
+    def creator_save_and_exit(self):
+        out_dir = os.path.join(DATA_DIR, f"{datetime.now():%y%m%d}-HL7 Output")
+        os.makedirs(out_dir, exist_ok=True)
+        total_messages = 0
+        total_patients = 0
+        for patient in self.patients:
+            if patient['messages']:
+                total_patients += 1
+                total_messages += len(patient['messages'])
+                base_name = f"{patient['base_vars']['{patientFirstName}'].get() or 'First'}{patient['base_vars']['{patientLastName}'].get() or 'Last'}"
+                for msg, idx in patient['messages']:
+                    with open(os.path.join(out_dir, f"{base_name}-{idx}.hl7"), 'w') as f:
+                        f.write(msg)
+        messagebox.showinfo("Save Complete", f"Saved {total_messages} messages for {total_patients} patients to {out_dir}")
+        self.root.quit()
+
+    ### Editor Mode
+    def setup_editor(self):
+        title_frame = tk.Frame(self.content_frame, bg=BG_COLOR)
+        title_frame.pack(pady=10)
+        tk.Label(title_frame, text="HL7 Message", font=("Georgia", 32), fg=TITLE_HL7_MSG, bg=BG_COLOR).pack(side=tk.LEFT)
+        tk.Label(title_frame, text=" Editor", font=("Georgia", 32), fg=TITLE_EDITOR, bg=BG_COLOR).pack(side=tk.LEFT)
+
+        self.editor_content_frame = tk.Frame(self.content_frame, bg=BG_COLOR)
+        self.editor_content_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.editor_preview_text = scrolledtext.ScrolledText(
+            self.editor_content_frame, width=80, height=20, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, font=DEFAULT_FONT
+        )
+        self.editor_preview_text.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+
+        self.editor_button_frame = tk.Frame(self.editor_content_frame, bg=BG_COLOR)
+        self.editor_button_frame.pack(fill=tk.X, pady=5)
+        self.editor_prev_button = tk.Button(self.editor_button_frame, text="Previous", command=self.editor_prev_block, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT)
+        self.editor_prev_button.pack(side=tk.LEFT, padx=5)
+        self.editor_next_button = tk.Button(self.editor_button_frame, text="Next", command=self.editor_next_block, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT)
+        self.editor_next_button.pack(side=tk.LEFT, padx=5)
+        tk.Button(self.editor_button_frame, text="Randomize All", command=self.editor_randomize_all, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.editor_button_frame, text="Quit", command=self.quit, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(self.editor_button_frame, text="Save and Exit", command=self.editor_save_and_exit, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+
+        self.editor_prompt_frame = tk.Frame(self.editor_content_frame, bg=BG_COLOR)
+        self.editor_prompt_frame.pack(fill=tk.X, pady=5)
+        self.editor_edit_frame = tk.Frame(self.editor_content_frame, bg=BG_COLOR)
+        self.editor_edit_frame.pack(fill=tk.X, pady=5)
+
+        self.editor_load_blocks()
+        self.editor_next_block()
+
+    def editor_load_blocks(self):
+        self.patient_blocks = []
+        for folder in self.folders:
+            folder_path = os.path.join(DATA_DIR, folder)
+            if not os.path.exists(folder_path):
+                continue
+            files = [f for f in os.listdir(folder_path) if f.endswith(".hl7")]
+            patient_groups = {}
+            for file in files:
+                patient_name = file.split('-')[0]
+                patient_groups.setdefault(patient_name, []).append(os.path.join(folder_path, file))
+            for patient_name, patient_files in patient_groups.items():
+                patient_files.sort()
+                self.patient_blocks.append((folder, patient_name, patient_files))
+        self.patient_blocks.sort(key=lambda x: (x[0], x[1]))
+
+    def replace_variables(self, message, primary_fname, primary_lname, staff_names, manual_values=None):
+        if manual_values:
+            for (var, instance), value in manual_values.items():
+                if instance:
+                    lines = message.split('\n')
+                    for i, line in enumerate(lines):
+                        if instance in line and var in line:
+                            lines[i] = lines[i].replace(var, value, 1)
+                    message = '\n'.join(lines)
+                else:
+                    message = message.replace(var, value)
+            return message
+        message = message.replace("{primaryFirstName}", primary_fname).replace("{primaryLastName}", primary_lname)
+        return re.sub(r"\{(firstName|lastName)\}", lambda m: random.choice(staff_names[m.group(1).capitalize()]).iloc[0], message)
+
+    def find_variable_instances(self, message):
+        instances = []
+        for line in message.split('\n'):
+            if '{primaryLastName}' in line or '{primaryFirstName}' in line:
+                if line.startswith('PV1'):
+                    if '{primaryLastName}' in line:
+                        instances.append(('PV1', '{primaryLastName}'))
+                    if '{primaryFirstName}' in line:
+                        instances.append(('PV1', '{primaryFirstName}'))
+                elif line.startswith('AIP'):
+                    seq = line.split('|')[1]
+                    if '{primaryLastName}' in line:
+                        instances.append((f'AIP|{seq}', '{primaryLastName}'))
+                    if '{primaryFirstName}' in line:
+                        instances.append((f'AIP|{seq}', '{primaryFirstName}'))
+            if '{lastName}' in line or '{firstName}' in line:
+                if line.startswith('AIP'):
+                    seq = line.split('|')[1]
+                    if '{lastName}' in line:
+                        instances.append((f'AIP|{seq}', '{lastName}'))
+                    if '{firstName}' in line:
+                        instances.append((f'AIP|{seq}', '{firstName}'))
+        return sorted(set(instances), key=lambda x: x[0])
+
+    def editor_update_button_states(self):
+        self.editor_prev_button.config(state="disabled" if self.current_block <= 0 else "normal", fg=DITHERED_TEXT if self.current_block <= 0 else TEXT_COLOR)
+        self.editor_next_button.config(state="disabled" if self.current_block >= len(self.patient_blocks) - 1 else "normal", fg=DITHERED_TEXT if self.current_block >= len(self.patient_blocks) - 1 else TEXT_COLOR)
+
+    def editor_show_prompt(self, message, options, callback):
+        for widget in self.editor_prompt_frame.winfo_children():
+            widget.destroy()
+        tk.Label(self.editor_prompt_frame, text=message, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        for option in options:
+            tk.Button(self.editor_prompt_frame, text=option, command=lambda o=option: callback(o), fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+
+    def editor_clear_edit_fields(self):
+        for widget in self.editor_edit_frame.winfo_children():
+            widget.destroy()
+        self.edit_fields = []
+        self.manual_entries = {}
+
+    def editor_highlight_variable(self, instance, var, message):
+        self.editor_preview_text.tag_remove("highlight", "1.0", tk.END)
+        lines = message.split('\n')
+        for i, line in enumerate(lines):
+            if instance in line and var in line:
+                start_idx = line.index(var)
+                start_pos = f"{i+1}.{start_idx}"
+                end_pos = f"{i+1}.{start_idx + len(var)}"
+                self.editor_preview_text.tag_add("highlight", start_pos, end_pos)
+                self.editor_preview_text.tag_config("highlight", background="yellow", foreground="black")
+                break
+
+    def editor_update_preview(self):
+        if 0 <= self.current_block < len(self.patient_blocks):
+            _, patient, block_files = self.patient_blocks[self.current_block]
+            with open(block_files[0], 'r') as file:
+                message = file.read()
+            self.editor_preview_text.delete(1.0, tk.END)
+            self.editor_preview_text.insert(tk.END, message)
+            self.editor_show_prompt(f"Edit patient block ({patient})?", ["Yes", "No"], self.editor_handle_edit_prompt)
+        else:
+            self.editor_preview_text.delete(1.0, tk.END)
+            self.editor_preview_text.insert(tk.END, "No patient blocks found.\n")
+        self.editor_update_button_states()
+
+    def editor_handle_edit_prompt(self, choice):
+        if choice == "Yes":
+            self.editor_show_prompt("Randomize or manually edit?", ["Random", "Manual"], self.editor_handle_mode_choice)
+        else:
+            self.editor_next_block()
+
+    def editor_handle_mode_choice(self, choice):
+        if choice == "Random":
+            self.editor_randomize_block()
+        else:
+            self.editor_manual_edit_block()
+
+    def editor_prev_block(self):
+        if self.current_block > 0:
+            self.current_block -= 1
+            self.editor_clear_edit_fields()
+            self.editor_update_preview()
+
+    def editor_next_block(self):
+        if self.current_block < len(self.patient_blocks) - 1:
+            self.current_block += 1
+            self.editor_clear_edit_fields()
+            self.editor_update_preview()
+
+    def editor_randomize_all(self):
+        self.editor_show_prompt("Randomize all names for all messages?", ["Yes", "No"], self.editor_handle_randomize_all)
+
+    def editor_handle_randomize_all(self, choice):
+        if choice == "Yes":
+            self.edited_messages = {}
+            total_messages = 0
+            for _, _, block_files in self.patient_blocks:
+                primary = self.surgeon_names.sample(1).iloc[0]
+                for file_path in block_files:
+                    with open(file_path, 'r') as file:
+                        message = file.read()
+                    self.edited_messages[file_path] = self.replace_variables(message, primary["First Name"], primary["Last Name"], self.staff_names)
+                    total_messages += 1
+            self.editor_preview_text.delete(1.0, tk.END)
+            self.editor_preview_text.insert(tk.END, f"Randomized {total_messages} messages.\n")
+            self.editor_show_prompt("Done.", ["OK"], lambda x: self.editor_update_preview())
+        else:
+            self.editor_update_preview()
+
+    def editor_randomize_block(self):
+        if 0 <= self.current_block < len(self.patient_blocks):
+            _, _, block_files = self.patient_blocks[self.current_block]
+            primary = self.surgeon_names.sample(1).iloc[0]
+            edited = {}
+            for file_path in block_files:
+                with open(file_path, 'r') as file:
+                    message = file.read()
+                edited[file_path] = self.replace_variables(message, primary["First Name"], primary["Last Name"], self.staff_names)
+            self.edited_messages.update(edited)
+            self.editor_preview_text.delete(1.0, tk.END)
+            self.editor_preview_text.insert(tk.END, edited[block_files[0]])
+            self.editor_show_prompt("Save, reroll, or edit manually?", ["Save", "Reroll", "Manual"], self.editor_handle_post_edit)
+
+    def editor_manual_edit_block(self):
+        if 0 <= self.current_block < len(self.patient_blocks):
+            _, _, block_files = self.patient_blocks[self.current_block]
+            with open(block_files[0], 'r') as file:
+                message = file.read()
+            instances = self.find_variable_instances(message)
+            self.editor_clear_edit_fields()
+            for instance, var in instances:
+                frame = tk.Frame(self.editor_edit_frame, bg=PREVIEW_BG)
+                frame.pack(fill=tk.X, pady=2)
+                tk.Label(frame, text=f"{instance}", fg=TEXT_COLOR, bg=PREVIEW_BG, width=10, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+                entry = tk.Entry(frame, bg=PREVIEW_BG, fg=DITHERED_TEXT, insertbackground=TEXT_COLOR, font=DEFAULT_FONT)
+                entry.insert(0, var)
+                entry.bind("<FocusIn>", lambda e, i=instance, v=var: self.editor_on_entry_focus(e, i, v, entry))
+                entry.bind("<KeyRelease>", lambda e, i=instance, v=var, fp=block_files[0]: self.editor_on_entry_change(e, i, v, entry, fp))
+                entry.pack(side=tk.LEFT, padx=5)
+                self.edit_fields.append((entry, instance, var))
+            tk.Button(self.editor_edit_frame, text="Random Patient", command=self.editor_random_patient, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(pady=5)
+            self.editor_preview_text.delete(1.0, tk.END)
+            self.editor_preview_text.insert(tk.END, message)
+            self.editor_show_prompt("Apply edits?", ["Apply", "Cancel"], self.editor_handle_manual_apply)
+
+    def editor_random_patient(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            name = self.patient_names.sample(1).iloc[0]
+            self.manual_entries[("{patientFirstName}", "")] = name["First Name"]
+            self.manual_entries[("{patientLastName}", "")] = name["Last Name"]
+            _, _, block_files = self.patient_blocks[self.current_block]
+            with open(block_files[0], 'r') as file:
+                message = file.read()
+            updated_message = self.replace_variables(message, "", "", self.staff_names, self.manual_entries)
+            self.editor_preview_text.delete(1.0, tk.END)
+            self.editor_preview_text.insert(tk.END, updated_message)
+
+    def editor_on_entry_focus(self, event, instance, var, entry):
+        if entry.get() == var:
+            entry.delete(0, tk.END)
+            entry.config(fg=TEXT_COLOR)
+        message = self.editor_preview_text.get("1.0", tk.END).strip()
+        self.editor_highlight_variable(instance, var, message)
+
+    def editor_on_entry_change(self, event, instance, var, entry, file_path):
+        value = entry.get()
+        self.manual_entries[(var, instance)] = value if value else var
+        with open(file_path, 'r') as file:
+            message = file.read()
+        updated_message = self.replace_variables(message, "", "", self.staff_names, self.manual_entries)
+        self.editor_preview_text.delete(1.0, tk.END)
+        self.editor_preview_text.insert(tk.END, updated_message)
+        self.editor_highlight_variable(instance, var, updated_message)
+
+    def editor_handle_manual_apply(self, choice):
+        if choice == "Apply" and 0 <= self.current_block < len(self.patient_blocks):
+            _, _, block_files = self.patient_blocks[self.current_block]
+            edited = {}
+            for file_path in block_files:
+                with open(file_path, 'r') as file:
+                    message = file.read()
+                edited[file_path] = self.replace_variables(message, "", "", self.staff_names, self.manual_entries)
+            self.edited_messages.update(edited)
+            self.editor_preview_text.delete(1.0, tk.END)
+            self.editor_preview_text.insert(tk.END, edited[block_files[0]])
+            self.editor_clear_edit_fields()
+            self.editor_show_prompt("Save, reroll, or edit manually?", ["Save", "Reroll", "Manual"], self.editor_handle_post_edit)
+        else:
+            self.editor_clear_edit_fields()
+            self.editor_update_preview()
+
+    def editor_handle_post_edit(self, choice):
+        if choice == "Save":
+            self.editor_next_block()
+        elif choice == "Reroll":
+            self.editor_randomize_block()
+        elif choice == "Manual":
+            self.editor_manual_edit_block()
+
+    def editor_save_and_exit(self):
+        for file_path, message in self.edited_messages.items():
+            with open(file_path, 'w') as file:
+                file.write(message)
+        self.root.quit()
+
+    def quit(self):
+        if messagebox.askyesno("Confirm Quit", "Unsaved changes will be lost. Quit?"):
+            self.root.quit()
+
+# Prompt definitions
+base_prompts = [
+    {"key": "{YYYYMMDD}", "prompt": "Scheduled date: (YYYYMMDD)"},
+    {"key": "{scheduledTime}", "prompt": "Setup time: (HHMMSS)"},
+    {"key": "{patientLastName}", "prompt": "Patient last name:"},
+    {"key": "{patientFirstName}", "prompt": "Patient first name:"},
+    {"key": "{patientDOB}", "prompt": "Patient DOB: (YYYYMMDD)"},
+    {"key": "{patientGender}", "prompt": "Patient gender: (M/F)"},
+    {"key": "{patientMRN}", "prompt": "Patient MRN:"},
+    {"key": "{duration}", "prompt": "Duration: (minutes, blank for 60-120)"},
+    {"key": "{procedure}", "prompt": "Procedure name:"},
+    {"key": "{procedureDescription}", "prompt": "Procedure description:"},
+    {"key": "{specialNeeds}", "prompt": "Special needs:"},
+    {"key": "{locationDepartment}", "prompt": "Department:"},
+    {"key": "{locationOR}", "prompt": "OR room:"},
+    {"key": "{procedureId}", "prompt": "Procedure ID:"},
+    {"key": "{cptCode}", "prompt": "CPT Code:"},
+]
+
+procedure_fields = [
+    {"key": "{procedure}", "prompt": "Procedure name:"},
+    {"key": "{procedureDescription}", "prompt": "Procedure description:"},
+    {"key": "{specialNeeds}", "prompt": "Special needs:"},
+    {"key": "{procedureId}", "prompt": "Procedure ID:"},
+]
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = HL7MessageApp(root)
+    root.mainloop()

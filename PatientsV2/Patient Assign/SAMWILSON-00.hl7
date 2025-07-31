@@ -1,0 +1,16 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}08000000||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||60|M|^^^{YYYYMMDD}08000000
+ZCS||N|ORSCH_S14||||23412^Rotator Cuff Repair^CPT
+PID|1||{patientMRN}^^^MRN^MRN||WILSON^SAM||20050114|M|WILSON^SAM^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||ORTHO|||||||||{patientMRN}
+RGS|
+AIS|1||ORTHO019^Rotator Cuff Repair|{YYYYMMDD}080000|0|M|60|M||||2
+NTE|1||Open rotator cuff repair, right shoulder|Procedure Description|||
+NTE|2||Requires shoulder arthroscopy kit and suture anchors|Case Notes|||
+AIL|1||^P01^^RECOVERY
+AIP|1||115^Ramirez^Sophia^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|ORTHO|{YYYYMMDD}080000|0|S|60|S
+AIP|2||37^Powers^Brandy^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}080000|0|S|60|S
+AIP|3||50^Compton^Bradley^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}080000|0|S|60|S
+AIP|4||6^Rivera^Brandi^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}080000|0|S|60|S
+AIP|5||28^Morrison^Brandy^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}080000|0|S|60|S

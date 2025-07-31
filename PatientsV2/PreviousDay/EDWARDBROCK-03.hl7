@@ -1,0 +1,20 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}14460000||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||180|M|^^^{YYYYMMDD}153000
+ZCS||Y|ORSCH_S14||||37221^Angioplasty^CPT
+PID|1||{patientMRN}^^^MRN^MRN||BROCK^EDWARD||19470929|M|BROCK^EDWARD^^|||||||||{patientMRN}
+PV1||E|NC-PERIOP^^^NC|||||||CV|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|out_preop|In|{YYYYMMDD}14460000|||||||||{YYYYMMDD}14460000||||||||||||||||||
+AIS|1||VASC005^Angioplasty|{YYYYMMDD}1530|0|M|180|M||||2
+NTE|1||Percutaneous angioplasty of iliac artery|Procedure Description|||
+NTE|2||Requires cath lab and balloon catheter|Case Notes|||
+AIS|2||VASC006^Arterial Stenting|{YYYYMMDD}1530|0|M|180|M||||2
+NTE|3||STENTING OF ILIAC ARTERY|Procedure Description|||
+NTE|4||Requires fluoroscopy and stent delivery system|Case Notes|||
+AIL|1||^OR06^^HEIGHTS
+AIP|1||110^Davis^Noah^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|CV|{YYYYMMDD}1530|0|S|180|S
+AIP|2||34^Baker^Michael^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1530|0|S|180|S
+AIP|3||28^Morrison^Brandy^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1530|0|S|180|S
+AIP|4||8^Thomas^Sean^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1530|0|S|180|S
+AIP|5||40^Harrison^Alexander^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1530|0|S|180|S

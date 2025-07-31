@@ -1,0 +1,21 @@
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}132438||SIU^S12|9435153|P|2.5
+SCH||6191937|||||||6960|S|^^^{YYYYMMDD}132438
+ZCS|BEFORE|N|ORSCH_S12||||10005^PR FINE NEEDLE ASPIRATION BX W/US GDN 1ST LESION^CPT~31536^PR LARYNGOSCOPY,DIRCT,OP SCOPE,BIOPSY^CPT~76942^PR SONO GUIDE NEEDLE BIOPSY^CPT
+PID|1||{caseID}^^^MRN^MRN||BATSON^BILLY^I||19790312|M|BATSON^M^^|||||||||380056019
+PV1||Hospital OP|MHS-NPERI^^^NC|||||||ENT|||||||99266184^Martinez^S^Martinez^^^^^EPIC^^^^PROVID||{caseID}
+RGS|
+OBX|1|DTM|closing|{YYYYMMDD}111000|||||||||{YYYYMMDD}111000||||||||||||||||||
+AIS|1||1819^LARYNGOSCOPY, WITH FOREIGN BODY REMOVAL OR BIOPSY IF INDICATED|20241016073000|0|S|1020|S|||80|4
+NTE|1||MICRO DIRECT LARYNGOSCOPY, WITH BIOPSY|Procedure Description|||
+NTE|2||Request cytologist in room  No antibiotics  Frozen sections needed  No CFA  HOB 90 degrees clockwise|CaseNotes|||
+AIS|2||4810^ASPIRATION, WITH US GUIDANCE|20241016073000|0|S|3600|S|||80|1
+NTE|1||FINE NEEDLE ASPIRATION, WITH US GUIDANCE|Procedure Description|||
+NTE|2||Request cytologist in room  No antibiotics  Frozen sections needed  No CFA  HOB 90 degrees clockwise|CaseNotes|||
+NTE|1||POSSIBLE LEFT NECK CORE NEEDLE BIOPSY,|Procedure Description|||
+NTE|2||Request cytologist in room  No antibiotics  Frozen sections needed  No CFA  HOB 90 degrees clockwise|CaseNotes|||
+AIL|1||^OR10^^AIPOR
+AIP|1||99266184^Martinez^S^Liam^^^^^EPIC^^^^PROVID|1.1^Primary|ENT|20241016073000|0|S|5460|S
+AIP|2||991022817^Robinson^Douglas^L^^^^^EPIC^^^^PROVID|4.20^Circulator||20240502105200|0|S|6660|S
+AIP|3||99234258^Richardson^Robert^^^^^^EPIC^^^^PROVID|4.150^Scrub ||20240502105200|0|S|6660|S
+AIP|4||11419^Robles^ERIN^Marvin^^^^^EPIC^^^^PROVID|2.10^ANE Attending||20240502105200|0|S|6660|S
+AIP|5|||2.141^Anesthesiologist-1||20241016073000|0|S|6960|S

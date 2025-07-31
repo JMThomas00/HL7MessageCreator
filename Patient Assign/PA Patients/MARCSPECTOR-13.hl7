@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}09350000||SIU^S14|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||85|M|^^^{YYYYMMDD}08150000
+ZCS||N|ORSCH_S14||||15836^Brachioplasty^CPT
+PID|1||{patientMRN}^^^MRN^MRN||SPECTOR^MARC||19641210|M|SPECTOR^MARC^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||PLAS|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|in_pacu|In|{YYYYMMDD}09350000|||||||||{YYYYMMDD}09350000||||||||||||||||||
+AIS|1||PLAST017^Brachioplasty|{YYYYMMDD}081500|0|M|85|M||||2
+NTE|1||Brachioplasty for excess arm skin|Procedure Description|||
+NTE|2||Requires skin resection tools and drains|Case Notes|||
+AIL|1||^KOR05^^KATY
+AIP|1||110^Davis^Noah^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|PLAS|{YYYYMMDD}081500|0|S|85|S
+AIP|2||3^Moreno^Charles^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}081500|0|S|85|S
+AIP|3||23^Velasquez^Adam^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}081500|0|S|85|S
+AIP|4||5^Rosario^Timothy^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}081500|0|S|85|S
+AIP|5||30^Johnson^Jessica^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}081500|0|S|85|S

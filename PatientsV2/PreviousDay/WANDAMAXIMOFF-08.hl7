@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}10330500||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||120|M|^^^{YYYYMMDD}094500
+ZCS||N|ORSCH_S14||||52332^Ureteral Stent Placement^CPT
+PID|1||{patientMRN}^^^MRN^MRN||MAXIMOFF^WANDA||19571026|F|MAXIMOFF^WANDA^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||URO|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|closing|In|{YYYYMMDD}10330500|||||||||{YYYYMMDD}10330500||||||||||||||||||
+AIS|1||URO022^Ureteral Stent Placement|{YYYYMMDD}0945|0|M|120|M||||2
+NTE|1||Ureteral stent placement for obstruction|Procedure Description|||
+NTE|2||Requires fluoroscopy and stent kit|Case Notes|||
+AIL|1||^OR08^^HEIGHTS
+AIP|1||114^Mason^Carter^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|URO|{YYYYMMDD}0945|0|S|120|S
+AIP|2||27^Robles^John^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}0945|0|S|120|S
+AIP|3||30^Johnson^Jessica^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}0945|0|S|120|S
+AIP|4||32^Thompson^Jessica^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}0945|0|S|120|S
+AIP|5||50^Compton^Bradley^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}0945|0|S|120|S

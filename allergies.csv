@@ -1,0 +1,36 @@
+allergy_id,allergy_name,reaction,severity
+1,No Known Allergies,,
+1142,No Known Medical Allergies,,
+1143,No Known Drug Allergies,,
+1144,Cefalexin,Hives,Moderate
+1145,Latex,Skin rash,Mild
+1146,Seasonal Allergies,Sneezing,Mild
+1147,Betadine,Itching,Mild
+1148,Vancomycin,Red man syndrome,Moderate
+1149,Adhesives,Contact dermatitis,Mild
+1150,Sulfa,Rash,Moderate
+1151,Nickel,Contact dermatitis,Mild
+1152,Contrast dye,Anaphylaxis,Severe
+1153,Penicillin,Rash,Moderate
+1154,Lidocaine,Numbness,Mild
+1155,Nitroglycerin,Headache,Mild
+1156,Cipro,Tendon pain,Moderate
+1157,Strawberries,Hives,Moderate
+1158,Cat Dander,Sneezing,Mild
+1159,Soy,Stomach upset,Mild
+1160,Amoxicillin,Rash,Moderate
+1161,Ibuprofen,Stomach pain,Mild
+1162,Aspirin,Bleeding,Moderate
+1163,Ampicillin,Rash,Moderate
+1164,Tetracycline,Photosensitivity,Mild
+1165,NSAIDs,Stomach ulcer,Moderate
+1166,Bananas,Itching,Mild
+1167,Local Anesthetics,Numbness,Mild
+1168,Dust Mites,Sneezing,Mild
+1169,Mold,Coughing,Mild
+1170,Shellfish,Anaphylaxis,Severe
+1174,Rituximab,Infusion reaction,Moderate
+1176,Rituximab,Infusion reaction,Moderate
+2001,Peanuts,Anaphylaxis,Severe
+2002,Eggs,Hives,Moderate
+2003,Milk,Stomach upset,Mild

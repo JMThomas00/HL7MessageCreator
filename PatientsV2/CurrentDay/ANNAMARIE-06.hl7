@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}16100000||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||90|M|^^^{YYYYMMDD}160000
+ZCS||Y|ORSCH_S14||||11042^Wound Debridement^CPT
+PID|1||{patientMRN}^^^MRN^MRN||MARIE^ANNA||19690112|F|MARIE^ANNA^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||GEN|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|intraop|In|{YYYYMMDD}16100000|||||||||{YYYYMMDD}16100000||||||||||||||||||
+AIS|1||GEN040^Wound Debridement|{YYYYMMDD}1600|0|M|90|M||||2
+NTE|1||Debridement of necrotic wound, abdomen|Procedure Description|||
+NTE|2||Requires debridement tray and irrigation|Case Notes|||
+AIL|1||^OR07^^HEIGHTS
+AIP|1||102^Taylor^Isabella^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|GEN|{YYYYMMDD}1600|0|S|90|S
+AIP|2||11^Santana^Paul^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1600|0|S|90|S
+AIP|3||3^Moreno^Charles^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1600|0|S|90|S
+AIP|4||19^Anderson^Kaitlin^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1600|0|S|90|S
+AIP|5||12^Lloyd^George^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1600|0|S|90|S

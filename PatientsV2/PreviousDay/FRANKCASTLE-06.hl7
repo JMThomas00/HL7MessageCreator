@@ -1,0 +1,20 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}11090000||SIU^S12|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||180|M|^^^{YYYYMMDD}110000
+ZCS||N|ORSCH_S14||||64885^Nerve Grafting^CPT
+PID|1||{patientMRN}^^^MRN^MRN||CASTLE^FRANK||19531028|M|CASTLE^FRANK^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||NEURO|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|intraop|In|{YYYYMMDD}11090000|||||||||{YYYYMMDD}11090000||||||||||||||||||
+AIS|1||NEURO027^Nerve Grafting|{YYYYMMDD}1100|0|M|180|M||||2
+NTE|1||Nerve grafting for facial nerve injury|Procedure Description|||
+NTE|2||Requires nerve graft and microsurgery|Case Notes|||
+AIS|2||NEURO024^Nerve Repair|{YYYYMMDD}1100|0|M|180|M||||2
+NTE|3||Microsurgical repair of median nerve, right wrist|Procedure Description|||
+NTE|4||Requires operating microscope and suture|Case Notes|||
+AIL|1||^OR09^^HEIGHTS
+AIP|1||119^Strange^Stephen^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|NEURO|{YYYYMMDD}1100|0|S|180|S
+AIP|2||23^Velasquez^Adam^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}1100|0|S|180|S
+AIP|3||21^Underwood^Marvin^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}1100|0|S|180|S
+AIP|4||43^Miller^Craig^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}1100|0|S|180|S
+AIP|5||24^Jones^Renee^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}1100|0|S|180|S

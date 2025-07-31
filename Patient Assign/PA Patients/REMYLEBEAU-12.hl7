@@ -1,0 +1,17 @@
+
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}11090000||SIU^S14|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||{duration}|M|^^^{YYYYMMDD}10150000
+ZCS||N|ORSCH_S14||||55873^Cryoablation of Prostate^CPT
+PID|1||{patientMRN}^^^MRN^MRN||LEBEAU^REMY||19441001|M|LEBEAU^REMY^^|||||||||{patientMRN}
+PV1||IP|NC-PERIOP^^^NC|||||||URO|||||||||{patientMRN}
+RGS|
+OBX|1|DTM|planned_pacu|In|{YYYYMMDD}11090000|||||||||{YYYYMMDD}11090000||||||||||||||||||
+AIS|1||URO013^Cryoablation of Prostate|{YYYYMMDD}101500|0|M|{duration}|M||||2
+NTE|1||Cryoablation for prostate cancer|Procedure Description|||
+NTE|2||Requires cryoablation probes and ultrasound|Case Notes|||
+AIL|1||^H12^^KATY
+AIP|1||110^Davis^Noah^W^^^^^EPIC^^^^PROVID|1.1^Primary Surgeon|URO|{YYYYMMDD}101500|0|S|{duration}|S
+AIP|2||27^Robles^John^W^^^^^EPIC^^^^PROVID|4.20^Circulator|GEN|{YYYYMMDD}101500|0|S|{duration}|S
+AIP|3||19^Anderson^Kaitlin^W^^^^^EPIC^^^^PROVID|4.150^Scrub|GEN|{YYYYMMDD}101500|0|S|{duration}|S
+AIP|4||44^Norton^Carol^W^^^^^EPIC^^^^PROVID|2.20^ANE CRNA|GEN|{YYYYMMDD}101500|0|S|{duration}|S
+AIP|5||22^Fox^Alison^W^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist|GEN|{YYYYMMDD}101500|0|S|{duration}|S
