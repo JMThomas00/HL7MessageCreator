@@ -833,6 +833,35 @@ For further assistance, contact the application support team or refer to the **H
         else:
             self.procedure_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 5))
             self.procedure_panel_visible = True
+    
+    def toggle_allergy_browser(self):
+        # --- Paste the method implementation here ---
+        if not hasattr(self, 'allergy_browser_frame') or self.allergy_browser_frame is None:
+            self.allergy_browser_frame = tk.Frame(self.procedure_frame, bg=BG_COLOR)
+            search_frame = tk.Frame(self.allergy_browser_frame, bg=BG_COLOR)
+            search_frame.pack(fill=tk.X, padx=5, pady=5)
+            tk.Label(search_frame, text="Search Allergies:", bg=BG_COLOR, fg=TEXT_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT)
+            self.allergy_search_var = tk.StringVar()
+            self.allergy_search_var.trace_add("write", lambda *args: self.filter_allergies())
+            self.allergy_search_entry = UppercaseEntry(search_frame, base_width=20, min_width=10, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, textvariable=self.allergy_search_var)
+            self.allergy_search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+            self.entry_widgets.append(self.allergy_search_entry)
+            self.allergy_tree = ttk.Treeview(self.allergy_browser_frame, show="tree", height=12)
+            self.allergy_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+            self.allergy_tree.bind("<Double-1>", self.select_allergy)
+            button_frame = tk.Frame(self.allergy_browser_frame, bg=BG_COLOR)
+            button_frame.pack(fill=tk.X, padx=5, pady=5)
+            tk.Button(button_frame, text="Add Selected Allergy", command=self.add_selected_allergy, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+            tk.Button(button_frame, text="Close", command=self.toggle_allergy_browser, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+            self.populate_allergy_tree()
+            self.allergy_browser_visible = False
+
+        if getattr(self, 'allergy_browser_visible', False):
+            self.allergy_browser_frame.pack_forget()
+            self.allergy_browser_visible = False
+        else:
+            self.allergy_browser_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=5, pady=5)
+            self.allergy_browser_visible = True
 
     def clear_search(self):
         self.search_var.set("")
@@ -910,7 +939,7 @@ For further assistance, contact the application support team or refer to the **H
         tk.Label(allergies_frame, text="Allergies:", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
         self.allergies_display = tk.Label(allergies_frame, text="No Known Medical Allergies", fg=TEXT_COLOR, bg=PREVIEW_BG, font=DEFAULT_FONT, anchor="w")
         self.allergies_display.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        tk.Button(allergies_frame, text="Browse Allergies", command=self.open_allergy_browser, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        tk.Button(allergies_frame, text="Browse Allergies", command=self.toggle_allergy_browser, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
 
         self.staff_group_frame = tk.Frame(self.base_prompts_frame, bg=BG_COLOR)
         self.staff_group_frame.pack(fill=tk.X, pady=10)
@@ -1215,30 +1244,6 @@ For further assistance, contact the application support team or refer to the **H
             entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
             proc[field['key']].trace_add("write", lambda *args: self.creator_update_preview())
             self.entry_widgets.append(entry)
-
-    def open_allergy_browser(self):
-        self.allergy_browser_window = tk.Toplevel(self.root)
-        self.allergy_browser_window.title("Allergy Browser")
-        self.allergy_browser_window.configure(bg=BG_COLOR)
-        
-        search_frame = tk.Frame(self.allergy_browser_window, bg=BG_COLOR)
-        search_frame.pack(fill=tk.X, padx=5, pady=5)
-        tk.Label(search_frame, text="Search:", bg=BG_COLOR, fg=TEXT_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT)
-        self.allergy_search_var = tk.StringVar()
-        self.allergy_search_var.trace_add("write", lambda *args: self.filter_allergies())
-        self.allergy_search_entry = UppercaseEntry(search_frame, base_width=20, min_width=10, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, textvariable=self.allergy_search_var)
-        self.allergy_search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        
-        self.allergy_tree = ttk.Treeview(self.allergy_browser_window, show="tree", height=20)
-        self.allergy_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        self.allergy_tree.bind("<Double-1>", self.select_allergy)
-        
-        button_frame = tk.Frame(self.allergy_browser_window, bg=BG_COLOR)
-        button_frame.pack(fill=tk.X, padx=5, pady=5)
-        tk.Button(button_frame, text="Add Selected Allergy", command=self.add_selected_allergy, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Close", command=self.allergy_browser_window.destroy, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
-        
-        self.populate_allergy_tree()
 
     def populate_allergy_tree(self, filter_text=""):
         for item in self.allergy_tree.get_children():
