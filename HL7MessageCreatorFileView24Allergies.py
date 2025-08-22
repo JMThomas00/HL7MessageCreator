@@ -5,8 +5,8 @@ import random
 import os
 import re
 from datetime import datetime, timedelta
-from hl7apy.parser import parse_message
-from hl7apy.exceptions import ValidationError
+#from hl7apy.parser import parse_message
+#from hl7apy.exceptions import ValidationError
 
 # Color scheme
 BG_COLOR = "#1F2139"  # Dark blue-gray background
@@ -1708,7 +1708,7 @@ For further assistance, contact the application support team or refer to the **H
             self.message_backups[message['file_path']] = original_text
             updated_text = self.editor_preview_text.get("1.0", tk.END).strip()
             try:
-                parse_message(updated_text)  # Validate HL7 message
+                #parse_message(updated_text)  # Validate HL7 message
                 self.edited_messages[message['file_path']] = updated_text
                 message['message_text'] = updated_text
                 messagebox.showinfo("Saved", "Direct edits saved to current message")
@@ -1720,7 +1720,7 @@ For further assistance, contact the application support team or refer to the **H
             patient_block = self.patient_blocks[self.current_patient_index]
             updated_text = self.editor_preview_text.get("1.0", tk.END).strip()
             try:
-                parse_message(updated_text)  # Validate HL7 message
+                #parse_message(updated_text)  # Validate HL7 message
                 for message in patient_block['messages']:
                     original_text = message['message_text']
                     self.message_backups[message['file_path']] = original_text
