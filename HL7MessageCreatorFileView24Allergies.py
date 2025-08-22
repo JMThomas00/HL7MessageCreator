@@ -5,8 +5,8 @@ import random
 import os
 import re
 from datetime import datetime, timedelta
-#from hl7apy.parser import parse_message
-#from hl7apy.exceptions import ValidationError
+from hl7apy.parser import parse_message
+from hl7apy.exceptions import ValidationError
 
 # Color scheme
 BG_COLOR = "#1F2139"  # Dark blue-gray background
