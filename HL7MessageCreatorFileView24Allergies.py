@@ -25,13 +25,13 @@ DATA_DIR = SCRIPT_DIR  # CSVs and output in script directory
 
 # Default HL7 template for SIU messages
 default_hl7 = """
-MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}00||SIU^{triggerEvent}|{patientMRN}|P|2.5
-SCH||{patientMRN}|||||||{duration}|M|^^^{YYYYMMDD}{scheduledTime}00
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}||SIU^{triggerEvent}|{patientMRN}|P|2.5
+SCH||{patientMRN}|||||||{duration}|M|^^^{YYYYMMDD}{scheduledTime}
 ZCS||{addOn}|ORSCH_S14||||{cptCode}^{procedure}^CPT
 PID|1||{patientMRN}^^^MRN^MRN||{patientLastName}^{patientFirstName}||{patientDOB}|{patientGender}|{patientLastName}^{patientFirstName}^^|||||||||{patientMRN}
 PV1||{encounterType}|NC-PERIOP^^^NC|||||||{specialty}|||||||||{patientMRN}
 RGS|
-OBX|1|DTM|{caseEvent}|In|{YYYYMMDD}{eventTime}00|||||||||{YYYYMMDD}{eventTime}00||||||||||||||||||
+OBX|1|DTM|{caseEvent}|In|{YYYYMMDD}{eventTime}|||||||||{YYYYMMDD}{eventTime}||||||||||||||||||
 AIS|1||{procedureId}^{procedure}|{YYYYMMDD}{scheduledTime}|0|M|{duration}|M||||2
 NTE|1||{procedureDescription}|Procedure Description|||
 NTE|2||{specialNeeds}|Case Notes|||
@@ -45,10 +45,10 @@ AIP|5||{staffID}^{lastName}^{firstName}^^^^^^^EPIC^^^^PROVID|2.139^Anesthesiolog
 
 # Default HL7 template for ADT messages
 adt_template = """
-MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}00||ADT^A01||P|2.5
-EVN|A01|{YYYYMMDD}{eventTime}00|
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}||ADT^A01||P|2.5
+EVN|A01|{YYYYMMDD}{eventTime}|
 PID|1||{patientMRN}^^^MRN^MRN||{patientLastName}^{patientFirstName}||{patientDOB}|{patientGender}||||||||||{patientMRN}
-PV1||{encounterType}|NC-PERIOP^^^NC||||||||||||||||{patientMRN}|||||||||||||||||||||||||{YYYYMMDD}{eventTime}00
+PV1||{encounterType}|NC-PERIOP^^^NC||||||||||||||||{patientMRN}|||||||||||||||||||||||||{YYYYMMDD}{eventTime}
 PV2|||||||
 {AL1_segments}
 """
