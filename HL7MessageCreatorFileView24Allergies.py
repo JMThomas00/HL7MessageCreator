@@ -24,7 +24,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = SCRIPT_DIR  # CSVs and output in script directory
 
 # Default HL7 template for SIU messages
-default_hl7 = """
+default_hl7 = r"""
 MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}||SIU^{triggerEvent}|{patientMRN}|P|2.5
 SCH||{patientMRN}|||||||{duration}|M|^^^{YYYYMMDD}{scheduledTime}
 ZCS||{addOn}|ORSCH_S14||||{cptCode}^{procedure}^CPT
@@ -44,7 +44,7 @@ AIP|5||{staffID}^{lastName}^{firstName}^^^^^^^EPIC^^^^PROVID|2.139^Anesthesiolog
 """
 
 # Default HL7 template for ADT messages
-adt_template = """
+adt_template = r"""
 MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}||ADT^A01||P|2.5
 EVN|A01|{YYYYMMDD}{eventTime}|
 PID|1||{patientMRN}^^^MRN^MRN||{patientLastName}^{patientFirstName}||{patientDOB}|{patientGender}||||||||||{patientMRN}
@@ -780,14 +780,14 @@ For further assistance, contact the application support team or refer to the **H
     def select_procedure(self, event):
         item = self.tree.selection()
         if item:
-            values = self.tree.item(item, "values")
+            values = self.tree.item(item[0], "values")
             if values:
                 self.apply_procedure_selection(*values)
 
     def add_selected_procedure(self):
         item = self.tree.selection()
         if item:
-            values = self.tree.item(item, "values")
+            values = self.tree.item(item[0], "values")
             if values:
                 self.apply_procedure_selection(*values)
 
@@ -1261,7 +1261,7 @@ For further assistance, contact the application support team or refer to the **H
     def select_allergy(self, event):
         item = self.allergy_tree.selection()
         if item:
-            values = self.allergy_tree.item(item, "values")
+            values = self.allergy_tree.item(item[0], "values")
             if values:
                 allergy = {"allergyID": values[0], "allergyName": values[1], "allergyReaction": values[2], "allergySeverity": values[3]}
                 self.patients[self.current_patient_index]['allergies'].append(allergy)
@@ -1271,7 +1271,7 @@ For further assistance, contact the application support team or refer to the **H
     def add_selected_allergy(self):
         item = self.allergy_tree.selection()
         if item:
-            values = self.allergy_tree.item(item, "values")
+            values = self.allergy_tree.item(item[0], "values")
             if values:
                 allergy = {"allergyID": values[0], "allergyName": values[1], "allergyReaction": values[2], "allergySeverity": values[3]}
                 self.patients[self.current_patient_index]['allergies'].append(allergy)
