@@ -392,7 +392,6 @@ This project is provided for healthcare IT professionals to support HL7 interfac
 ## Support & Documentation
 
 - **Detailed Documentation**: [https://deepwiki.com/JMThomas00/HL7MessageCreator/1-overview](https://deepwiki.com/JMThomas00/HL7MessageCreator/1-overview)
-- **Developer Guide**: See [CLAUDE.md](CLAUDE.md) for architecture and development information
 - **HL7 Standards**: [HL7 International](https://www.hl7.org/)
 
 ## Acknowledgments
