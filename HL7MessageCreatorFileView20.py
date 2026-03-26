@@ -43,6 +43,16 @@ AIP|4||{staffID}^{lastName}^{firstName}^^^^^^^EPIC^^^^PROVID|2.20^ANE CRNA||{YYY
 AIP|5||{staffID}^{lastName}^{firstName}^^^^^^^EPIC^^^^PROVID|2.139^Anesthesiologist||{YYYYMMDD}{scheduledTime}|0|M|{duration}|M
 """
 
+# Default HL7 template for ADT messages
+adt_template = """
+MSH|^~\&|EPIC|NC||NC|{YYYYMMDD}{eventTime}||ADT^A01||P|2.5
+EVN|A01|{YYYYMMDD}{eventTime}|
+PID|1||{patientMRN}^^^MRN^MRN||{patientLastName}^{patientFirstName}||{patientDOB}|{patientGender}||||||||||{patientMRN}
+PV1||{encounterType}|NC-PERIOP^^^NC||||||||||||||||{patientMRN}|||||||||||||||||||||||||{YYYYMMDD}{eventTime}
+PV2|||||||
+{AL1_segments}
+"""
+
 # Case events for OBX segments
 case_events = [
     ("arrive", -60),
@@ -130,6 +140,7 @@ class HL7MessageApp:
             self.staff_names = pd.read_csv(os.path.join(DATA_DIR, "staff_names.csv"))
             self.surgeon_names = pd.read_csv(os.path.join(DATA_DIR, "surgeon_names.csv"))
             self.patient_names = pd.read_csv(os.path.join(DATA_DIR, "patient_names.csv"))
+            self.allergies = pd.read_csv(os.path.join(DATA_DIR, "allergies.csv"))
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load CSV files: {e}")
             self.root.quit()
@@ -266,7 +277,29 @@ Creator Mode allows you to generate HL7 messages for new patients.
   - **Date Buttons**: Set the scheduled date to -1 Day, Today, or +1 Day.
   - **Time Buttons**: Adjust the scheduled time by -1 Hour, Now, or +1 Hour.
 - Select an **Encounter Type** (e.g., Inpatient, Emergent) via radio buttons.
+- Select an **Environment** (US Demo or UCH) to control how fields map to HL7 segments.
 - Specify the **Message Type** (Scheduled, Scheduled & Case Events, or Scheduled & Canceled) to define the output messages.
+
+*New Fields* #new-fields
+The application now supports additional clinical fields that are environment-specific:
+
+- **Environment**: Select "US Demo" or "UCH" to control how the new fields map to HL7 segments. This affects Anesthesia Type, Laterality, and Isolations placement.
+
+- **ASA Score**: Select the patient's ASA physical status classification (1-6). This appears as an OBX segment in both environments.
+
+- **Laterality**: Select procedure laterality from the dropdown:
+  - L = Left
+  - R = Right
+  - B = Bilateral
+  - N/A = Not applicable
+  Maps to AIS.12.1 (US Demo) or AIS.3.4 (UCH).
+
+- **Anesthesia Type**: Enter the anesthesia type (e.g., General, MAC, Regional, Local, Spinal, Epidural). You can select from common values or type a custom value. Maps to AIS.11.1 (US Demo) or creates an OBX segment (UCH).
+
+- **Isolations/Risk Factors**: Enter patient isolation precautions or risk factors.
+  - For multiple values, separate with ~ (e.g., MRSA~COVID~C-DIFF)
+  - US Demo: Stored in PV2.7 field
+  - UCH: Creates OBX segment(s) with valueType='ST'
 
 *Managing Procedures* #managing-procedures
 - Click **Browse Procedures** to open the procedure browser.
@@ -817,6 +850,34 @@ For further assistance, contact the application support team or refer to the **H
             self.procedure_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 5))
             self.procedure_panel_visible = True
 
+    def toggle_allergy_browser(self):
+        if not hasattr(self, 'allergy_browser_frame') or self.allergy_browser_frame is None:
+            self.allergy_browser_frame = tk.Frame(self.procedure_frame, bg=BG_COLOR)
+            search_frame = tk.Frame(self.allergy_browser_frame, bg=BG_COLOR)
+            search_frame.pack(fill=tk.X, padx=5, pady=5)
+            tk.Label(search_frame, text="Search Allergies:", bg=BG_COLOR, fg=TEXT_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT)
+            self.allergy_search_var = tk.StringVar()
+            self.allergy_search_var.trace_add("write", lambda *args: self.filter_allergies())
+            self.allergy_search_entry = UppercaseEntry(search_frame, base_width=20, min_width=10, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, textvariable=self.allergy_search_var)
+            self.allergy_search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+            self.entry_widgets.append(self.allergy_search_entry)
+            self.allergy_tree = ttk.Treeview(self.allergy_browser_frame, show="tree", height=12)
+            self.allergy_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+            self.allergy_tree.bind("<Double-1>", self.select_allergy)
+            button_frame = tk.Frame(self.allergy_browser_frame, bg=BG_COLOR)
+            button_frame.pack(fill=tk.X, padx=5, pady=5)
+            tk.Button(button_frame, text="Add Selected Allergy", command=self.add_selected_allergy, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+            tk.Button(button_frame, text="Close", command=self.toggle_allergy_browser, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+            self.populate_allergy_tree()
+            self.allergy_browser_visible = False
+
+        if getattr(self, 'allergy_browser_visible', False):
+            self.allergy_browser_frame.pack_forget()
+            self.allergy_browser_visible = False
+        else:
+            self.allergy_browser_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=5, pady=5)
+            self.allergy_browser_visible = True
+
     def clear_search(self):
         self.search_var.set("")
         self.populate_procedure_tree()
@@ -831,7 +892,9 @@ For further assistance, contact the application support team or refer to the **H
 
     def setup_base_prompts(self):
         self.encounter_radios = []
+        self.environment_radios = []
         dummy_var = tk.StringVar()  # Temporary variable for radio buttons before patient is loaded
+        dummy_env_var = tk.StringVar(value="US Demo")  # Temporary variable for environment radio buttons
         for prompt in base_prompts:
             frame = tk.Frame(self.base_prompts_frame, bg=BG_COLOR)
             frame.pack(fill=tk.X, pady=2)
@@ -854,6 +917,56 @@ For further assistance, contact the application support team or refer to the **H
                     )
                     rb.pack(side=tk.LEFT, padx=5)
                     self.encounter_radios.append(rb)
+            elif prompt['key'] == "{environment}":
+                radio_frame = tk.Frame(frame, bg=BG_COLOR)
+                radio_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+                environment_options = ["US Demo", "UCH"]
+                for option in environment_options:
+                    rb = tk.Radiobutton(
+                        radio_frame, text=option, variable=dummy_env_var, value=option,
+                        bg=BG_COLOR, fg=TEXT_COLOR, selectcolor=PREVIEW_BG, font=DEFAULT_FONT
+                    )
+                    rb.pack(side=tk.LEFT, padx=5)
+                    self.environment_radios.append(rb)
+            elif prompt['key'] == "{asaScore}":
+                # Add suggestions label
+                suggestions_label = tk.Label(frame, text="(1, 2, 3, 4, 5, 6)", fg="#888888", bg=BG_COLOR, font=("Courier New", 8))
+                suggestions_label.pack(side=tk.LEFT, padx=5)
+                entry = UppercaseEntry(frame, base_width=10, min_width=5, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+                entry.pack(side=tk.LEFT, padx=5)
+                self.base_entries[prompt['key']] = entry
+                self.entry_widgets.append(entry)
+            elif prompt['key'] == "{anesthesiaType}":
+                # Add suggestions label
+                suggestions_label = tk.Label(frame, text="(General, MAC, Regional, Local, Spinal, Epidural)", fg="#888888", bg=BG_COLOR, font=("Courier New", 8))
+                suggestions_label.pack(side=tk.LEFT, padx=5)
+                entry = UppercaseEntry(frame, base_width=20, min_width=10, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+                entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+                self.base_entries[prompt['key']] = entry
+                self.entry_widgets.append(entry)
+            elif prompt['key'] == "{isolations}":
+                entry = UppercaseEntry(frame, base_width=30, min_width=20, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+                entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+                self.base_entries[prompt['key']] = entry
+                self.entry_widgets.append(entry)
+                # Add helper label
+                helper_label = tk.Label(frame, text="(Separate multiple with ~)", fg="#888888", bg=BG_COLOR, font=("Courier New", 8))
+                helper_label.pack(side=tk.LEFT, padx=5)
+            elif prompt.get('type') == 'radio' and prompt['key'] == '{laterality}':
+                # Handle laterality as radio buttons
+                radio_frame = tk.Frame(frame, bg=BG_COLOR)
+                radio_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+                laterality_options = [("L", "L"), ("R", "R"), ("B", "B"), ("N/A", "N/A")]
+                # Create a dummy variable that will be replaced when patient is loaded
+                dummy_var = tk.StringVar(value="N/A")
+                for option_text, option_value in laterality_options:
+                    rb = tk.Radiobutton(
+                        radio_frame, text=option_text, variable=dummy_var, value=option_value,
+                        bg=BG_COLOR, fg=TEXT_COLOR, selectcolor=PREVIEW_BG, font=DEFAULT_FONT
+                    )
+                    rb.pack(side=tk.LEFT, padx=5)
+                # Store the radio frame for later binding to the actual patient variable
+                self.base_entries[prompt['key']] = {'radio_frame': radio_frame, 'dummy_var': dummy_var}
             else:
                 entry = UppercaseEntry(frame, base_width=20, min_width=10, bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
                 entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
@@ -886,6 +999,14 @@ For further assistance, contact the application support team or refer to the **H
                 tk.Button(btn_frame, text="Add", command=self.set_dob_by_age, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=2)
             elif prompt['key'] == "{patientLastName}":
                 tk.Button(frame, text="Random Name", command=self.random_patient, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+
+        # Allergies section
+        allergies_frame = tk.Frame(self.base_prompts_frame, bg=BG_COLOR)
+        allergies_frame.pack(fill=tk.X, pady=5)
+        tk.Label(allergies_frame, text="Allergies:", fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
+        self.allergies_display = tk.Label(allergies_frame, text="No Known Medical Allergies", fg=TEXT_COLOR, bg=PREVIEW_BG, font=DEFAULT_FONT, anchor="w")
+        self.allergies_display.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        tk.Button(allergies_frame, text="Browse Allergies", command=self.toggle_allergy_browser, fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
 
         self.staff_group_frame = tk.Frame(self.base_prompts_frame, bg=BG_COLOR)
         self.staff_group_frame.pack(fill=tk.X, pady=10)
@@ -1059,6 +1180,8 @@ For further assistance, contact the application support team or refer to the **H
             patient['procedures'] = []
             patient['staff_members'] = []
             patient['additional_surgeons'] = []
+            patient['allergies'] = []
+            self.update_allergies_display()
             self.creator_update_preview()
 
     def add_staff_fields(self, staff):
@@ -1109,13 +1232,15 @@ For further assistance, contact the application support team or refer to the **H
             messagebox.showwarning("Invalid Mode", "New Patient is only available in Creator mode.")
             return
         patient = {
-            'base_vars': {p['key']: tk.StringVar(value='IP' if p['key'] == '{encounterType}' else '') for p in base_prompts},
+            'base_vars': {p['key']: tk.StringVar(value='IP' if p['key'] == '{encounterType}' else 'N/A' if p['key'] == '{laterality}' else '') for p in base_prompts},
             'procedures': [],
             'staff_members': [],
             'additional_surgeons': [],
+            'allergies': [],
             'messages': [],
             'procedure_specialty': tk.StringVar(value="GEN"),
-            'message_type': tk.StringVar(value="Scheduled & Case Events")  # Default message type
+            'message_type': tk.StringVar(value="Scheduled & Case Events"),  # Default message type
+            'environment': tk.StringVar(value="US Demo")  # Environment: US Demo or UCH
         }
         self.patients.append(patient)
         self.current_patient_index = len(self.patients) - 1
@@ -1123,13 +1248,40 @@ For further assistance, contact the application support team or refer to the **H
 
     def creator_load_patient(self):
         patient = self.patients[self.current_patient_index]
+
+        # Backward compatibility: add missing fields for old patient objects
+        if 'environment' not in patient:
+            patient['environment'] = tk.StringVar(value="US Demo")
+
+        if 'allergies' not in patient:
+            patient['allergies'] = []
+
+        new_fields = ['{asaScore}', '{anesthesiaType}', '{isolations}', '{laterality}']
+        for field in new_fields:
+            if field not in patient['base_vars']:
+                default_value = 'N/A' if field == '{laterality}' else ''
+                patient['base_vars'][field] = tk.StringVar(value=default_value)
+
         for rb in self.encounter_radios:
             rb.config(variable=patient['base_vars']['{encounterType}'])
+        for rb in self.environment_radios:
+            rb.config(variable=patient['environment'])
         for rb in self.message_type_radios:
             rb.config(variable=patient['message_type'])
+
+        # Add trace for environment changes
+        patient['environment'].trace_add("write", lambda *args: self.creator_update_preview())
+
         for key, entry in self.base_entries.items():
             var = patient['base_vars'][key]
-            entry.config(textvariable=var)
+            # Handle special case for laterality radio buttons
+            if isinstance(entry, dict) and 'radio_frame' in entry:
+                # Update all radio buttons in the frame to use the patient's variable
+                for widget in entry['radio_frame'].winfo_children():
+                    if isinstance(widget, tk.Radiobutton):
+                        widget.config(variable=var)
+            else:
+                entry.config(textvariable=var)
             if var.trace_info():
                 var.trace_remove("write", var.trace_info()[0][1])
             var.trace_add("write", lambda *args: self.creator_update_preview())
@@ -1150,13 +1302,17 @@ For further assistance, contact the application support team or refer to the **H
             widget.destroy()
         self.procedure_frames = []
         for proc in patient['procedures']:
+            # Backward compatibility: add laterality to procedures if missing
+            if '{laterality}' not in proc:
+                proc['{laterality}'] = tk.StringVar(value='N/A')
             self.add_procedure_fields(proc)
+        self.update_allergies_display()
         self.creator_update_preview()
         self.creator_update_button_states()
 
     def add_procedure(self):
         if 0 <= self.current_patient_index < len(self.patients):
-            proc = {f['key']: tk.StringVar(value="") for f in procedure_fields}
+            proc = {f['key']: tk.StringVar(value='N/A' if f['key'] == '{laterality}' else '') for f in procedure_fields}
             self.patients[self.current_patient_index]['procedures'].append(proc)
             self.add_procedure_fields(proc)
             self.creator_update_preview()
@@ -1182,16 +1338,86 @@ For further assistance, contact the application support team or refer to the **H
             subframe = tk.Frame(frame, bg=BG_COLOR)
             subframe.pack(fill=tk.X, pady=2)
             tk.Label(subframe, text=field['prompt'], fg=TEXT_COLOR, bg=BG_COLOR, font=DEFAULT_FONT).pack(side=tk.LEFT, padx=5)
-            entry = UppercaseEntry(subframe, base_width=20, min_width=10, textvariable=proc[field['key']], bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
-            entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-            proc[field['key']].trace_add("write", lambda *args: self.creator_update_preview())
-            self.entry_widgets.append(entry)
+
+            # Handle laterality as radio buttons
+            if field.get('type') == 'radio' and field['key'] == '{laterality}':
+                radio_frame = tk.Frame(subframe, bg=BG_COLOR)
+                radio_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+                laterality_options = [("L", "L"), ("R", "R"), ("B", "B"), ("N/A", "N/A")]
+                for option_text, option_value in laterality_options:
+                    rb = tk.Radiobutton(
+                        radio_frame, text=option_text, variable=proc[field['key']], value=option_value,
+                        bg=BG_COLOR, fg=TEXT_COLOR, selectcolor=PREVIEW_BG, font=DEFAULT_FONT
+                    )
+                    rb.pack(side=tk.LEFT, padx=5)
+                proc[field['key']].trace_add("write", lambda *args: self.creator_update_preview())
+            else:
+                entry = UppercaseEntry(subframe, base_width=20, min_width=10, textvariable=proc[field['key']], bg=PREVIEW_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+                entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+                proc[field['key']].trace_add("write", lambda *args: self.creator_update_preview())
+                self.entry_widgets.append(entry)
+
+    def populate_allergy_tree(self, filter_text=""):
+        for item in self.allergy_tree.get_children():
+            self.allergy_tree.delete(item)
+        search_words = filter_text.lower().split() if filter_text else []
+        for _, allergy in self.allergies.iterrows():
+            allergy_text = f"{allergy['allergy_name']} (ID: {allergy['allergy_id']})"
+            if not search_words or any(word in allergy_text.lower() for word in search_words):
+                self.allergy_tree.insert("", tk.END, text=allergy_text, values=(allergy['allergy_id'], allergy['allergy_name'], allergy['reaction'], allergy['severity']))
+
+    def filter_allergies(self):
+        filter_text = self.allergy_search_var.get()
+        self.populate_allergy_tree(filter_text)
+
+    def select_allergy(self, event):
+        item = self.allergy_tree.selection()
+        if item:
+            values = self.allergy_tree.item(item, "values")
+            if values:
+                allergy = {"allergyID": values[0], "allergyName": values[1], "allergyReaction": values[2], "allergySeverity": values[3]}
+                self.patients[self.current_patient_index]['allergies'].append(allergy)
+                self.update_allergies_display()
+                self.creator_update_preview()
+
+    def add_selected_allergy(self):
+        item = self.allergy_tree.selection()
+        if item:
+            values = self.allergy_tree.item(item, "values")
+            if values:
+                allergy = {"allergyID": values[0], "allergyName": values[1], "allergyReaction": values[2], "allergySeverity": values[3]}
+                self.patients[self.current_patient_index]['allergies'].append(allergy)
+                self.update_allergies_display()
+                self.creator_update_preview()
+
+    def update_allergies_display(self):
+        if 0 <= self.current_patient_index < len(self.patients):
+            allergies = self.patients[self.current_patient_index]['allergies']
+            if allergies:
+                display_text = ", ".join([allergy['allergyName'] for allergy in allergies])
+            else:
+                display_text = "No Known Medical Allergies"
+            self.allergies_display.config(text=display_text)
 
     def creator_update_preview(self):
         if 0 <= self.current_patient_index < len(self.patients):
             patient = self.patients[self.current_patient_index]
             template = self.build_template(patient)
+
+            # Add ASA Score OBX (both environments)
+            template = self.add_asa_obx_segment(template, patient)
+
+            # Add staff segments
             template = self.add_staff_segment(template)
+
+            # Add laterality to AIS (environment-dependent)
+            template = self.add_laterality_to_ais(template, patient)
+
+            # Add anesthesia type (environment-dependent)
+            template = self.add_anesthesia_type(template, patient)
+
+            # Add isolations (environment-dependent)
+            template = self.add_isolations(template, patient)
             message_type = patient['message_type'].get()
             if message_type == "Scheduled & Case Events":
                 preview_template = template  # Full template with OBX for event messages
@@ -1206,6 +1432,24 @@ For further assistance, contact the application support team or refer to the **H
                 if val:
                     preview_text = preview_text.replace(key, val)
             preview_text = preview_text.replace("{triggerEvent}", trigger_event)
+
+            # Add ADT message preview
+            al1_segments = []
+            if patient['allergies']:
+                for i, allergy in enumerate(patient['allergies'], start=1):
+                    reaction = allergy['allergyReaction'] if allergy['allergyReaction'] else ""
+                    severity = allergy['allergySeverity'] if allergy['allergySeverity'] else ""
+                    al1_segment = f"AL1|{i}||{allergy['allergyID']}^{allergy['allergyName']}|{severity}|{reaction}|"
+                    al1_segments.append(al1_segment)
+            else:
+                al1_segments = ["AL1|1||NKA^No Known Allergies||"]
+            adt_preview = adt_template.replace("{AL1_segments}", "\n".join(al1_segments))
+            for key, val in base_values.items():
+                if val:
+                    adt_preview = adt_preview.replace(key, val)
+            adt_preview = adt_preview.replace("{eventTime}", base_values.get("{scheduledTime}", "{eventTime}"))
+            preview_text += "\n\n" + adt_preview
+
             self.creator_preview_text.delete(1.0, tk.END)
             self.creator_preview_text.insert(tk.END, preview_text)
 
@@ -1280,6 +1524,195 @@ For further assistance, contact the application support team or refer to the **H
             new_aip_lines.append(aip_line)
         lines[insert_idx:insert_idx] = new_aip_lines
         return "\n".join(lines)
+
+    def add_asa_obx_segment(self, template, patient):
+        asa_score = patient['base_vars']['{asaScore}'].get()
+        if not asa_score or asa_score == '{asaScore}':
+            return template
+
+        lines = template.splitlines()
+        # Find insertion point: before AIS segment
+        insert_idx = next((i for i, line in enumerate(lines) if line.startswith("AIS")), len(lines))
+
+        # Calculate OBX sequence number
+        obx_count = sum(1 for line in lines if line.startswith("OBX"))
+        obx_seq = obx_count + 1
+
+        # Create ASA OBX segment
+        asa_obx = f"OBX|{obx_seq}|DTM|ASA^ASA Score||{asa_score}|||||||||{{YYYYMMDD}}{{eventTime}}00||||||||||||||||||"
+        lines.insert(insert_idx, asa_obx)
+
+        return "\n".join(lines)
+
+    def add_laterality_to_ais(self, template, patient):
+        environment = patient['environment'].get()
+        lines = template.splitlines()
+        new_lines = []
+
+        # Build a list of procedures with laterality values
+        # First procedure (AIS|1|) comes from base_vars (for backward compatibility)
+        # Additional procedures (AIS|2|, AIS|3|, etc.) come from patient['procedures']
+        procedures_laterality = []
+
+        # Check if base_vars has laterality (backward compatibility)
+        if '{laterality}' in patient['base_vars']:
+            base_laterality = patient['base_vars']['{laterality}'].get()
+            procedures_laterality.append(base_laterality if base_laterality and base_laterality != '{laterality}' else "")
+        else:
+            procedures_laterality.append("")
+
+        # Add laterality from additional procedures
+        for proc in patient['procedures']:
+            if '{laterality}' in proc:
+                laterality = proc['{laterality}'].get()
+                procedures_laterality.append(laterality if laterality and laterality != '{laterality}' else "")
+            else:
+                procedures_laterality.append("")
+
+        ais_index = 0
+        for line in lines:
+            if line.startswith("AIS|"):
+                parts = line.split("|")
+                # Get the AIS sequence number (1-indexed)
+                ais_seq = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 1
+
+                # Get laterality for this AIS segment (0-indexed in our list)
+                laterality = procedures_laterality[ais_seq - 1] if ais_seq - 1 < len(procedures_laterality) else ""
+
+                if laterality:
+                    if environment == "US Demo":
+                        # Add to AIS.12.1
+                        while len(parts) < 13:
+                            parts.append("")
+                        parts[12] = laterality
+                        line = "|".join(parts)
+
+                    elif environment == "UCH":
+                        # Add to AIS.3.4
+                        if len(parts) > 3:
+                            ais3_parts = parts[3].split("^")
+                            while len(ais3_parts) < 5:  # Need 5 components (0-4)
+                                ais3_parts.append("")
+                            ais3_parts[4] = laterality  # AIS.3.4 is 5th component (0-indexed)
+                            parts[3] = "^".join(ais3_parts)
+                            line = "|".join(parts)
+
+            new_lines.append(line)
+
+        return "\n".join(new_lines)
+
+    def add_anesthesia_type(self, template, patient):
+        anesthesia = patient['base_vars']['{anesthesiaType}'].get()
+        environment = patient['environment'].get()
+
+        if not anesthesia or anesthesia == '{anesthesiaType}':
+            return template
+
+        lines = template.splitlines()
+
+        if environment == "US Demo":
+            # Add to AIS.11.1 (first procedure only)
+            new_lines = []
+            for line in lines:
+                if line.startswith("AIS|"):
+                    parts = line.split("|")
+                    # Only apply to first AIS segment (AIS|1|)
+                    if len(parts) > 1 and parts[1] == "1":
+                        while len(parts) < 12:
+                            parts.append("")
+                        # Format with component separator for HL7 parsing
+                        # AIS.11.1 = anesthesia type, remaining components empty
+                        parts[11] = f"{anesthesia}^" if anesthesia else ""
+                        line = "|".join(parts)
+                new_lines.append(line)
+            return "\n".join(new_lines)
+
+        elif environment == "UCH":
+            # Add as OBX segment (MDM pattern)
+            insert_idx = next((i for i, line in enumerate(lines) if line.startswith("AIS")), len(lines))
+            obx_count = sum(1 for line in lines if line.startswith("OBX"))
+            obx_seq = obx_count + 1
+
+            anesthesia_obx = f"OBX|{obx_seq}|ST|ANESTHESIA^Anesthesia Type||{anesthesia}|||||||||{{YYYYMMDD}}{{eventTime}}00||||||||||||||||||"
+            lines.insert(insert_idx, anesthesia_obx)
+            return "\n".join(lines)
+
+    def add_isolations(self, template, patient):
+        isolations = patient['base_vars']['{isolations}'].get()
+        environment = patient['environment'].get()
+
+        if not isolations or isolations == '{isolations}':
+            return template
+
+        lines = template.splitlines()
+
+        if environment == "US Demo":
+            # Add PV2 segment with PV2.7 field
+            pv2_exists = any(line.startswith("PV2|") for line in lines)
+
+            if pv2_exists:
+                # Update existing PV2.7
+                new_lines = []
+                for line in lines:
+                    if line.startswith("PV2|"):
+                        parts = line.split("|")
+                        while len(parts) < 8:
+                            parts.append("")
+                        parts[7] = isolations  # PV2.7 (user enters with ~ delimiter)
+                        line = "|".join(parts)
+                    new_lines.append(line)
+                return "\n".join(new_lines)
+            else:
+                # Create new PV2 segment after PV1
+                pv1_idx = next((i for i, line in enumerate(lines) if line.startswith("PV1|")), -1)
+                if pv1_idx >= 0:
+                    pv2_line = f"PV2|||||||{isolations}|"
+                    lines.insert(pv1_idx + 1, pv2_line)
+                return "\n".join(lines)
+
+        elif environment == "UCH":
+            # Add as OBX segment(s) with valueType='ST'
+            insert_idx = next((i for i, line in enumerate(lines) if line.startswith("AIS")), len(lines))
+            obx_count = sum(1 for line in lines if line.startswith("OBX"))
+
+            # Split on ~ if multiple isolations
+            isolation_list = isolations.split("~") if "~" in isolations else [isolations]
+
+            for isolation in isolation_list:
+                isolation = isolation.strip()
+                if not isolation:
+                    continue
+
+                obx_seq = obx_count + 1
+                obx_count += 1
+
+                # UCH format: OBX.5.2 contains isolation when OBX.2='ST'
+                isolation_obx = f"OBX|{obx_seq}|ST|ISOLATION^Risk Factor||^{isolation}|||||||||{{YYYYMMDD}}{{eventTime}}00||||||||||||||||||"
+                lines.insert(insert_idx, isolation_obx)
+                insert_idx += 1
+
+            return "\n".join(lines)
+
+    def validate_new_fields(self, patient):
+        warnings = []
+
+        # ASA Score validation removed - now free text field
+
+        # Validate Laterality in procedures
+        for i, proc in enumerate(patient['procedures'], start=1):
+            if '{laterality}' in proc:
+                laterality = proc['{laterality}'].get()
+                if laterality and laterality not in ["", "L", "R", "B", "N/A"]:
+                    warnings.append(f"Procedure {i} Laterality must be L, R, B, or N/A")
+
+        # Validate isolations format
+        isolations = patient['base_vars']['{isolations}'].get()
+        if isolations and "~" in isolations:
+            parts = isolations.split("~")
+            if any(not p.strip() for p in parts):
+                warnings.append("Invalid isolation format. Remove empty values around ~")
+
+        return warnings
 
     def fill_template(self, template, replacements):
         for key, val in replacements.items():
@@ -1368,13 +1801,54 @@ For further assistance, contact the application support team or refer to the **H
     def create_patient(self):
         if 0 <= self.current_patient_index < len(self.patients):
             patient = self.patients[self.current_patient_index]
+
+            # Validate new fields
+            warnings = self.validate_new_fields(patient)
+            if warnings:
+                warning_msg = "Validation Warnings:\n" + "\n".join(f"- {w}" for w in warnings)
+                warning_msg += "\n\nDo you want to continue?"
+                if not messagebox.askyesno("Validation Warnings", warning_msg):
+                    return
+
             template = self.build_template(patient)
+
+            # Add ASA Score OBX (both environments)
+            template = self.add_asa_obx_segment(template, patient)
+
+            # Add staff segments
             template = self.add_staff_segment(template)
+
+            # Add laterality to AIS (environment-dependent)
+            template = self.add_laterality_to_ais(template, patient)
+
+            # Add anesthesia type (environment-dependent)
+            template = self.add_anesthesia_type(template, patient)
+
+            # Add isolations (environment-dependent)
+            template = self.add_isolations(template, patient)
             base_values = {k: v.get() for k, v in patient['base_vars'].items()}
             base_values["{specialty}"] = patient['procedure_specialty'].get()
             duration = base_values.get("{duration}", "")
             duration_min = int(duration) if duration.isdigit() else random.randint(60, 120)
             patient['messages'] = self.build_event_messages(template, base_values, duration_min)
+
+            # Generate ADT message with allergies
+            al1_segments = []
+            if patient['allergies']:
+                for i, allergy in enumerate(patient['allergies'], start=1):
+                    reaction = allergy['allergyReaction'] if allergy['allergyReaction'] else ""
+                    severity = allergy['allergySeverity'] if allergy['allergySeverity'] else ""
+                    al1_segment = f"AL1|{i}||{allergy['allergyID']}^{allergy['allergyName']}|{severity}|{reaction}|"
+                    al1_segments.append(al1_segment)
+            else:
+                al1_segments = ["AL1|1||NKA^No Known Allergies||"]
+            adt_message = adt_template.replace("{AL1_segments}", "\n".join(al1_segments))
+            for key, val in base_values.items():
+                if val:
+                    adt_message = adt_message.replace(key, val)
+            adt_message = adt_message.replace("{eventTime}", base_values.get("{scheduledTime}", "{eventTime}"))
+            patient['messages'].append((adt_message, "ADT"))
+
             messagebox.showinfo("Success", "Patient messages generated. Edit fields as needed.")
 
     def creator_prev_patient(self):
@@ -1468,6 +1942,34 @@ For further assistance, contact the application support team or refer to the **H
                 parts = line.split("|")
                 if len(parts) > 3:
                     parsed_values["{patientMRN}"] = parts[3].split("^")[0]
+            elif line.startswith("OBX"):
+                parts = line.split("|")
+                if len(parts) > 3:
+                    obx3 = parts[3]  # Identifier
+                    if "ASA" in obx3 and len(parts) > 5:
+                        parsed_values["{asaScore}"] = parts[5]
+                    elif "ANESTHESIA" in obx3 and len(parts) > 5:
+                        parsed_values["{anesthesiaType}"] = parts[5]
+                    elif "ISOLATION" in obx3 and len(parts) > 5:
+                        # For UCH: OBX.5.2
+                        if "^" in parts[5]:
+                            parsed_values["{isolations}"] = parts[5].split("^")[1]
+            elif line.startswith("PV2"):
+                parts = line.split("|")
+                if len(parts) > 7 and parts[7]:
+                    parsed_values["{isolations}"] = parts[7]  # PV2.7
+            elif line.startswith("AIS"):
+                parts = line.split("|")
+                # Parse laterality from AIS.12 or AIS.3.4
+                if len(parts) > 12 and parts[12]:
+                    parsed_values["{laterality}"] = parts[12]  # US Demo
+                elif len(parts) > 3 and "^" in parts[3]:
+                    ais3_parts = parts[3].split("^")
+                    if len(ais3_parts) > 4 and ais3_parts[4]:
+                        parsed_values["{laterality}"] = ais3_parts[4]  # UCH
+                # Parse anesthesia from AIS.11
+                if len(parts) > 11 and parts[11]:
+                    parsed_values["{anesthesiaType}"] = parts[11]  # US Demo
         return parsed_values
 
     def editor_load_message(self):
@@ -1632,6 +2134,7 @@ base_prompts = [
     {"prompt": "Patient DOB (YYYYMMDD):", "key": "{patientDOB}"},
     {"prompt": "Patient MRN:", "key": "{patientMRN}"},
     {"prompt": "Encounter Type:", "key": "{encounterType}"},
+    {"prompt": "Environment:", "key": "{environment}"},
     {"prompt": "Scheduled Date (YYYYMMDD):", "key": "{YYYYMMDD}"},
     {"prompt": "Scheduled Time (HHMMSS):", "key": "{scheduledTime}"},
     {"prompt": "Duration (minutes):", "key": "{duration}"},
@@ -1639,16 +2142,21 @@ base_prompts = [
     {"prompt": "Procedure ID:", "key": "{procedureId}"},
     {"prompt": "CPT Code:", "key": "{cptCode}"},
     {"prompt": "Procedure Description:", "key": "{procedureDescription}"},
+    {"prompt": "Laterality:", "key": "{laterality}", "type": "radio"},
     {"prompt": "Special Needs:", "key": "{specialNeeds}"},
     {"prompt": "Location Department:", "key": "{locationDepartment}"},
     {"prompt": "Location OR:", "key": "{locationOR}"},
     {"prompt": "Add On (Y/N):", "key": "{addOn}"},
+    {"prompt": "ASA Score:", "key": "{asaScore}"},
+    {"prompt": "Anesthesia Type:", "key": "{anesthesiaType}"},
+    {"prompt": "Isolations/Risk Factors:", "key": "{isolations}"},
 ]
 
 procedure_fields = [
     {"prompt": "Procedure:", "key": "{procedure}"},
     {"prompt": "Procedure ID:", "key": "{procedureId}"},
     {"prompt": "Procedure Description:", "key": "{procedureDescription}"},
+    {"prompt": "Laterality:", "key": "{laterality}", "type": "radio"},
     {"prompt": "Special Needs:", "key": "{specialNeeds}"},
 ]
 

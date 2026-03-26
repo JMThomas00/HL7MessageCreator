@@ -1,51 +1,106 @@
 @echo off
 cd /d "%~dp0"
 
-REM --- Install Python 3.11 if not already installed ---
-where python3.11 >nul 2>nul
+REM --- Check if Python 3.11 is available ---
+echo Checking for Python 3.11...
+py -3.11 --version >nul 2>nul
 if %errorlevel% neq 0 (
-    echo Installing Python 3.11...
+    echo Python 3.11 not found. Attempting to install...
     winget install --silent --accept-package-agreements --accept-source-agreements Python.Python.3.11
+    echo.
+    echo Python 3.11 has been installed.
+    echo Please close this window and run the script again to complete setup.
+    pause
+    exit /b
 ) else (
-    echo Python 3.11 already installed.
+    echo Python 3.11 is available.
+)
+
+REM --- Remove old/broken virtual environment if it exists ---
+if exist ".venv" (
+    echo Checking virtual environment...
+    .venv\Scripts\python.exe --version >nul 2>&1
+    if errorlevel 1 (
+        echo Virtual environment appears broken. Removing...
+        rmdir /s /q .venv
+        if exist ".venv" (
+            echo WARNING: Could not remove .venv folder. Please delete it manually and run again.
+            pause
+            exit /b 1
+        )
+        echo Old virtual environment removed.
+    ) else (
+        echo Virtual environment is OK.
+    )
 )
 
 REM --- Create virtual environment if not already created ---
 if not exist ".venv" (
     echo Creating virtual environment...
-    python3.11 -m venv .venv
+    py -3.11 -m venv .venv
+    if %errorlevel% neq 0 (
+        echo Failed to create virtual environment!
+        pause
+        exit /b 1
+    )
+    echo Virtual environment created successfully.
 )
 
 REM --- Activate virtual environment ---
+echo Activating virtual environment...
 call .venv\Scripts\activate
+if %errorlevel% neq 0 (
+    echo Failed to activate virtual environment!
+    pause
+    exit /b 1
+)
 
 REM --- Ensure pip is up to date inside venv ---
-python -m pip install --upgrade pip
+echo Updating pip...
+python -m pip install --upgrade pip --quiet
 
 REM --- Install required packages inside venv ---
+echo Installing required packages...
 python -m pip install ^
-    altgraph==0.17.4 ^
     hl7apy==1.3.5 ^
-    numpy ^
-    packaging==25.0 ^
     pandas==2.3.2 ^
-    pefile==2023.2.7 ^
-    pyinstaller==6.1.5 ^
-    pyinstaller-hooks-contrib==2025.8 ^
+    numpy==2.2.1 ^
     python-dateutil==2.9.0.post0 ^
     pytz==2025.2 ^
-    pywin32-ctypes==0.2.3 ^
-    setuptools==80.9.0 ^
-    six==1.17.0 ^
-    tzdata==2025.2
+    --quiet
+
+if %errorlevel% neq 0 (
+    echo Failed to install required packages!
+    pause
+    exit /b 1
+)
+
+REM --- Optional: Install PyInstaller for building executables (comment out if not needed) ---
+REM echo Installing PyInstaller (for building executables)...
+REM python -m pip install ^
+REM     pyinstaller==6.1.5 ^
+REM     altgraph==0.17.4 ^
+REM     pefile==2023.2.7 ^
+REM     pyinstaller-hooks-contrib==2025.8 ^
+REM     pywin32-ctypes==0.2.3 ^
+REM     --quiet
+
+echo.
+echo ========================================
+echo Setup complete!
+echo ========================================
+echo.
 
 REM --- Run your Python script inside the venv ---
+echo Running HL7MessageCreatorFileView24Allergies.py ...
 echo.
-echo 🚀 Running HL7MessageCreatorFileView24Allergies.py ...
 python HL7MessageCreatorFileView24Allergies.py
 
 echo.
-echo ✅ All done! Virtual environment is still active.
+echo ========================================
+echo Application closed.
+echo ========================================
+echo Virtual environment is still active.
 echo To deactivate, type: deactivate
 echo.
 
